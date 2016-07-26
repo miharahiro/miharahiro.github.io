@@ -1,0 +1,751 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="jp">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>TripleO (Openstack-On-Openstack) &mdash; OSP-memo 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="OSP-memo 1 documentation" href="index.html" />
+    <link rel="next" title="TripleO quickstartを用いてHA (overcloud)を作成する" href="tripleO-ha.html" />
+    <link rel="prev" title="Welcome to OSP-memo’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="tripleo-openstack-on-openstack">
+<h1>TripleO (Openstack-On-Openstack)<a class="headerlink" href="#tripleo-openstack-on-openstack" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="links">
+<h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>tripleo-quickstart
+<a class="reference external" href="https://github.com/openstack/tripleo-quickstart">https://github.com/openstack/tripleo-quickstart</a></li>
+<li>Deploy the overcloud
+<a class="reference external" href="http://tripleo.org/basic_deployment/basic_deployment_cli.html#deploy-the-overcloud">http://tripleo.org/basic_deployment/basic_deployment_cli.html#deploy-the-overcloud</a></li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h2>実施環境<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>スクリプト実行元ホストマシン[LOCAL]</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">OS</span><span class="p">:</span> <span class="n">Red</span> <span class="n">Hat</span> <span class="n">Enterprise</span> <span class="n">Linux</span> <span class="n">Server</span> <span class="n">release</span> <span class="mf">7.2</span> <span class="p">(</span><span class="n">Maipo</span><span class="p">)</span>
+<span class="n">Linux</span> <span class="n">dhcp</span><span class="o">-</span><span class="mi">193</span><span class="o">-</span><span class="mf">176.</span><span class="n">nrt</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span> <span class="mf">3.10</span><span class="o">.</span><span class="mi">0</span><span class="o">-</span><span class="mf">327.</span><span class="n">el7</span><span class="o">.</span><span class="n">x86_64</span> <span class="c1">#1 SMP Thu Oct 29 17:29:29 EDT 2015 x86_64 x86_64 x86_64 GNU/Linux</span>
+
+<span class="n">CPU</span><span class="p">:</span> <span class="n">Intel</span><span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="n">Core</span><span class="p">(</span><span class="n">TM</span><span class="p">)</span> <span class="n">i7</span><span class="o">-</span><span class="mi">3520</span><span class="n">M</span> <span class="n">CPU</span> <span class="o">@</span> <span class="mf">2.90</span><span class="n">GHz</span> <span class="n">x</span> <span class="mi">4</span>
+<span class="n">MemTotal</span><span class="p">:</span>        <span class="mi">7703760</span> <span class="n">kB</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>スクリプト実行先マシン[VIRTHOST]</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span> OS: CentOS Linux release 7.2.1511 (Core)
+ Linux dhcp-201-132.nrt.redhat.com 3.10.0-327.22.2.el7.x86_64 #1 SMP Thu Jun 23 17:05:11 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+
+ CPU: Intel(R) Xeon(R) CPU E5-2620 v3 @ 2.40GHz x 24
+ MemTotal:       65560756 kB
+
+- (*) [LOCAL]と[VIRTHOST]は同一サーバでも実施可能です。
+</pre></div>
+</div>
+</div>
+<div class="section" id="setup-using-tripleo-quickstart">
+<h2>Setup using tripleo-quickstart<a class="headerlink" href="#setup-using-tripleo-quickstart" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>（Ansibleのための準備）まずは、スクリプト実行元ホストマシン[LOCAL]からスクリプト実行先マシン[VIRTHOST]へパスワード無しでrootがログインできるようにする。</li>
+</ol>
+<ul class="simple">
+<li>[LOCAL]公開鍵の作成</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># cd ~/.ssh</span>
+<span class="c1"># ssh-keygen -t rsa</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>[LOCAL]公開鍵をログイン先仮想マシンに転送</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># scp id_rsa.pub 192.168.130.121:/root</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>[VIRTHOST]公開鍵をログイン先仮想マシンに登録</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># cd ~/.ssh</span>
+<span class="c1"># cat ../id_rsa.pub &gt;&gt; authorized_keys</span>
+<span class="c1"># chmod 600 authorized_keys</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>[VIRTHOST]公開鍵認証の設定をし、sshdサービスを再起動</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span>/etc/ssh/sshd_config に、
+PubkeyAuthentication yes
+を追記
+
+# systemctl restart sshd.service
+</pre></div>
+</div>
+<ul class="simple">
+<li>[VIRTHOST]うまくいったか確認</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># ssh root@192.168.130.121 uname -a</span>
+<span class="n">Linux</span> <span class="n">c1</span><span class="o">.</span><span class="n">osp</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span> <span class="mf">3.10</span><span class="o">.</span><span class="mi">0</span><span class="o">-</span><span class="mf">327.22</span><span class="o">.</span><span class="mf">2.</span><span class="n">el7</span><span class="o">.</span><span class="n">x86_64</span> <span class="c1">#1 SMP Thu Jun 23 17:05:11 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>tripleo-quickstartの実行</li>
+</ol>
+<ul class="simple">
+<li>[LOCAL]quickstartスクリプトを取得</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wget https://raw.githubusercontent.com/openstack/tripleo-quickstart/master/quickstart.sh
+</pre></div>
+</div>
+<ul class="simple">
+<li>[LOCAL]依存モジュールの解決</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ sudo bash quickstart.sh --install-deps
+</pre></div>
+</div>
+<p>これにより、必要なモジュールがダウンロード、インストールされる。</p>
+<ul class="simple">
+<li>[LOCAL]インストール実行(root)</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># bash quickstart.sh --tags all VIRTHOST</span>
+</pre></div>
+</div>
+<p>上記VIRTHOSTは、VIRTHOSTのホスト名もしくはIPアドレスで置き換える。</p>
+<ul class="simple">
+<li>実行結果</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">TASK</span> <span class="p">[</span><span class="n">setup</span><span class="p">]</span> <span class="o">*******************************************************************</span>
+<span class="n">Tuesday</span> <span class="mi">05</span> <span class="n">July</span> <span class="mi">2016</span>  <span class="mi">09</span><span class="p">:</span><span class="mi">46</span><span class="p">:</span><span class="mi">01</span> <span class="o">+</span><span class="mi">0900</span> <span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">00.094</span><span class="p">)</span>       <span class="mi">0</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mf">30.714</span> <span class="o">**********</span>
+<span class="n">ok</span><span class="p">:</span> <span class="p">[</span><span class="n">undercloud</span><span class="p">]</span>
+
+<span class="n">PLAY</span> <span class="n">RECAP</span> <span class="o">*********************************************************************</span>
+<span class="mf">10.64</span><span class="o">.</span><span class="mf">201.132</span>              <span class="p">:</span> <span class="n">ok</span><span class="o">=</span><span class="mi">87</span>   <span class="n">changed</span><span class="o">=</span><span class="mi">36</span>   <span class="n">unreachable</span><span class="o">=</span><span class="mi">0</span>    <span class="n">failed</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">localhost</span>                  <span class="p">:</span> <span class="n">ok</span><span class="o">=</span><span class="mi">15</span>   <span class="n">changed</span><span class="o">=</span><span class="mi">7</span>    <span class="n">unreachable</span><span class="o">=</span><span class="mi">0</span>    <span class="n">failed</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">undercloud</span>                 <span class="p">:</span> <span class="n">ok</span><span class="o">=</span><span class="mi">27</span>   <span class="n">changed</span><span class="o">=</span><span class="mi">16</span>   <span class="n">unreachable</span><span class="o">=</span><span class="mi">0</span>    <span class="n">failed</span><span class="o">=</span><span class="mi">0</span>
+
+<span class="n">Tuesday</span> <span class="mi">05</span> <span class="n">July</span> <span class="mi">2016</span>  <span class="mi">09</span><span class="p">:</span><span class="mi">46</span><span class="p">:</span><span class="mi">04</span> <span class="o">+</span><span class="mi">0900</span> <span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mf">03.060</span><span class="p">)</span>       <span class="mi">0</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mf">33.774</span> <span class="o">**********</span>
+<span class="o">===============================================================================</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Get</span> <span class="n">image</span> <span class="o">------------------------------------------</span> <span class="mf">771.67</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">fetch_image</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">81</span>
+<span class="n">tripleo</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Install</span> <span class="n">the</span> <span class="n">undercloud</span> <span class="o">---------------------------</span> <span class="mf">489.10</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">tripleo</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">install</span><span class="o">-</span><span class="n">undercloud</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">1</span>
+<span class="n">tripleo</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Prepare</span> <span class="n">the</span> <span class="n">undercloud</span> <span class="k">for</span> <span class="n">deploy</span> <span class="o">----------------</span> <span class="mf">171.05</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">tripleo</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">post</span><span class="o">-</span><span class="n">install</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">27</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Get</span> <span class="n">undercloud</span> <span class="n">vm</span> <span class="n">ip</span> <span class="n">address</span> <span class="o">------------------------</span> <span class="mf">71.89</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">178</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Resize</span> <span class="n">undercloud</span> <span class="n">image</span> <span class="p">(</span><span class="n">call</span> <span class="n">virt</span><span class="o">-</span><span class="n">resize</span><span class="p">)</span> <span class="o">----------</span> <span class="mf">68.24</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">127</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Copy</span> <span class="n">instackenv</span><span class="o">.</span><span class="n">json</span> <span class="n">to</span> <span class="n">appliance</span> <span class="o">-------------------</span> <span class="mf">39.77</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">58</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Upload</span> <span class="n">undercloud</span> <span class="n">volume</span> <span class="n">to</span> <span class="n">storage</span> <span class="n">pool</span> <span class="o">------------</span> <span class="mf">21.91</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">147</span>
+<span class="n">tripleo</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Create</span> <span class="n">undercloud</span> <span class="n">configuration</span> <span class="o">--------------------</span> <span class="mf">6.61</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">tripleo</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">create</span><span class="o">-</span><span class="n">scripts</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">3</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Inject</span> <span class="n">undercloud</span> <span class="n">ssh</span> <span class="n">public</span> <span class="n">key</span> <span class="n">to</span> <span class="n">appliance</span> <span class="o">--------</span> <span class="mf">6.30</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">77</span>
+<span class="n">tripleo</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">restart</span> <span class="n">ironic</span> <span class="n">conductor</span> <span class="n">after</span> <span class="n">changing</span> <span class="n">configuration</span> <span class="o">---</span> <span class="mf">5.89</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">tripleo</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">23</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Get</span> <span class="n">actual</span> <span class="n">md5</span> <span class="n">checksum</span> <span class="n">of</span> <span class="n">image</span> <span class="o">---------------------</span> <span class="mf">5.87</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">fetch_image</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">92</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Perform</span> <span class="n">selinux</span> <span class="n">relabel</span> <span class="n">on</span> <span class="n">undercloud</span> <span class="n">image</span> <span class="o">----------</span> <span class="mf">3.40</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">99</span>
+<span class="n">setup</span> <span class="o">-------------------------------------------------------------------</span> <span class="mf">3.06</span><span class="n">s</span>
+<span class="kc">None</span> <span class="o">--------------------------------------------------------------------------</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Get</span> <span class="n">qcow2</span> <span class="n">image</span> <span class="kn">from</span> <span class="nn">cache</span> <span class="o">---------------------------</span> <span class="mf">2.08</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">fetch_image</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">144</span>
+<span class="n">setup</span> <span class="o">-------------------------------------------------------------------</span> <span class="mf">1.68</span><span class="n">s</span>
+<span class="kc">None</span> <span class="o">--------------------------------------------------------------------------</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Get</span> <span class="n">image</span> <span class="n">expected</span> <span class="n">checksum</span> <span class="o">--------------------------</span> <span class="mf">1.23</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">fetch_image</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">53</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">overcloud</span> <span class="p">:</span> <span class="n">Write</span> <span class="n">instackenv</span> <span class="n">script</span> <span class="o">-------------------------------</span> <span class="mf">0.86</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">overcloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">81</span>
+<span class="n">tripleo</span><span class="o">/</span><span class="n">undercloud</span> <span class="p">:</span> <span class="n">Create</span> <span class="n">network</span> <span class="n">environment</span> <span class="n">file</span> <span class="k">for</span> <span class="n">network</span> <span class="n">isolation</span> <span class="o">---</span> <span class="mf">0.86</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">tripleo</span><span class="o">/</span><span class="n">undercloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">post</span><span class="o">-</span><span class="n">install</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">32</span>
+<span class="n">tripleo</span><span class="o">/</span><span class="n">overcloud</span> <span class="p">:</span> <span class="n">Create</span> <span class="n">overcloud</span> <span class="n">validate</span> <span class="n">script</span> <span class="o">--------------------</span> <span class="mf">0.82</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">tripleo</span><span class="o">/</span><span class="n">overcloud</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">create</span><span class="o">-</span><span class="n">scripts</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">10</span>
+<span class="n">setup</span><span class="o">/</span><span class="n">user</span> <span class="p">:</span> <span class="n">Generate</span> <span class="n">ssh</span> <span class="n">keys</span> <span class="o">------------------------------------------</span> <span class="mf">0.81</span><span class="n">s</span>
+<span class="o">/</span><span class="n">root</span><span class="o">/.</span><span class="n">quickstart</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">tripleo</span><span class="o">-</span><span class="n">quickstart</span><span class="o">/</span><span class="n">roles</span><span class="o">/</span><span class="n">libvirt</span><span class="o">/</span><span class="n">setup</span><span class="o">/</span><span class="n">user</span><span class="o">/</span><span class="n">tasks</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">yml</span><span class="p">:</span><span class="mi">19</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="accessing-undercloud-overcloud">
+<h2>Accessing undercloud/overcloud<a class="headerlink" href="#accessing-undercloud-overcloud" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>[LOCAL]quickstartが作成した設定ファイルを利用してundercloudにアクセスできる。(rootユーザで実施）</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># ssh -F ~/.quickstart/ssh.config.ansible undercloud</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="quickstart">
+<h2>quickstart実施後の確認<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">[UNDERCLOUD]Unsercloudがインストールされたことの確認</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ source stackrc
+[stack@undercloud ~]$ openstack catalog list
++------------------+-------------------------+---------------------------------+
+| Name             | Type                    | Endpoints                       |
++------------------+-------------------------+---------------------------------+
+| nova             | compute                 | regionOne                       |
+|                  |                         |   publicURL: http://192.0.2.1:8 |
+|                  |                         | 774/v2/ea8fddafbb83482686cc364c |
+|                  |                         | fa07a008                        |
+|                  |                         |   internalURL: http://192.0.2.1 |
+|                  |                         | :8774/v2/ea8fddafbb83482686cc36 |
+|                  |                         | 4cfa07a008                      |
+|                  |                         |   adminURL: http://192.0.2.1:87 |
+|                  |                         | 74/v2/ea8fddafbb83482686cc364cf |
+|                  |                         | a07a008                         |
+|                  |                         |                                 |
+| neutron          | network                 | regionOne                       |
+|                  |                         |   publicURL:                    |
+|                  |                         | http://192.0.2.1:9696           |
+|                  |                         |   internalURL:                  |
+|                  |                         | http://192.0.2.1:9696           |
+|                  |                         |   adminURL:                     |
+|                  |                         | http://192.0.2.1:9696           |
+|                  |                         |                                 |
+| novav3           | computev3               | regionOne                       |
+|                  |                         |   publicURL:                    |
+|                  |                         | http://192.0.2.1:8774/v3        |
+|                  |                         |   internalURL:                  |
+|                  |                         | http://192.0.2.1:8774/v3        |
+|                  |                         |   adminURL:                     |
+|                  |                         | http://192.0.2.1:8774/v3        |
+|                  |                         |                                 |
+| aodh             | alarming                | regionOne                       |
+|                  |                         |   publicURL:                    |
+|                  |                         | http://192.0.2.1:8042           |
+|                  |                         |   internalURL:                  |
+|                  |                         | http://192.0.2.1:8042           |
+|                  |                         |   adminURL:                     |
+|                  |                         | http://192.0.2.1:8042           |
+|                  |                         |                                 |
+| Image Service    | image                   | regionOne                       |
+|                  |                         |   publicURL:                    |
+|                  |                         | http://192.0.2.1:9292           |
+|                  |                         |   internalURL:                  |
+|                  |                         | http://192.0.2.1:9292           |
+|                  |                         |   adminURL:                     |
+|                  |                         | http://192.0.2.1:9292           |
+|                  |                         |                                 |
+| ceilometer       | metering                | regionOne                       |
+|                  |                         |   publicURL:                    |
+|                  |                         | http://192.0.2.1:8777           |
+|                  |                         |   internalURL:                  |
+|                  |                         | http://192.0.2.1:8777           |
+|                  |                         |   adminURL:                     |
+|                  |                         | http://192.0.2.1:8777           |
+|                  |                         |                                 |
+| ironic           | baremetal               | regionOne                       |
+|                  |                         |   publicURL:                    |
+|                  |                         | http://192.0.2.1:6385           |
+|                  |                         |   internalURL:                  |
+|                  |                         | http://192.0.2.1:6385           |
+|                  |                         |   adminURL:                     |
+|                  |                         | http://192.0.2.1:6385           |
+|                  |                         |                                 |
+| heat             | orchestration           | regionOne                       |
+|                  |                         |   publicURL: http://192.0.2.1:8 |
+|                  |                         | 004/v1/ea8fddafbb83482686cc364c |
+|                  |                         | fa07a008                        |
+|                  |                         |   internalURL: http://192.0.2.1 |
+|                  |                         | :8004/v1/ea8fddafbb83482686cc36 |
+|                  |                         | 4cfa07a008                      |
+|                  |                         |   adminURL: http://192.0.2.1:80 |
+|                  |                         | 04/v1/ea8fddafbb83482686cc364cf |
+|                  |                         | a07a008                         |
+|                  |                         |                                 |
+| swift            | object-store            | regionOne                       |
+|                  |                         |   publicURL: http://192.0.2.1:8 |
+|                  |                         | 080/v1/AUTH_ea8fddafbb83482686c |
+|                  |                         | c364cfa07a008                   |
+|                  |                         |   internalURL: http://192.0.2.1 |
+|                  |                         | :8080/v1/AUTH_ea8fddafbb8348268 |
+|                  |                         | 6cc364cfa07a008                 |
+|                  |                         |   adminURL:                     |
+|                  |                         | http://192.0.2.1:8080           |
+|                  |                         |                                 |
+| ironic-inspector | baremetal-introspection | regionOne                       |
+|                  |                         |   publicURL:                    |
+|                  |                         | http://192.0.2.1:5050           |
+|                  |                         |   internalURL:                  |
+|                  |                         | http://192.0.2.1:5050           |
+|                  |                         |   adminURL:                     |
+|                  |                         | http://192.0.2.1:5050           |
+|                  |                         |                                 |
+| keystone         | identity                | regionOne                       |
+|                  |                         |   publicURL:                    |
+|                  |                         | http://192.0.2.1:5000/v2.0      |
+|                  |                         |   internalURL:                  |
+|                  |                         | http://192.0.2.1:5000/v2.0      |
+|                  |                         |   adminURL:                     |
+|                  |                         | http://192.0.2.1:35357/v2.0     |
+|                  |                         |                                 |
++------------------+-------------------------+---------------------------------+
+</pre></div>
+</div>
+</li>
+<li><p class="first">[LOCAL]作成されたネットワークの確認</p>
+</li>
+</ul>
+<p>external</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">virsh</span> <span class="c1"># net-dumpxml external</span>
+<span class="o">&lt;</span><span class="n">network</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">external</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">uuid</span><span class="o">&gt;</span><span class="mi">4</span><span class="n">fd64041</span><span class="o">-</span><span class="mi">0442</span><span class="o">-</span><span class="mi">44</span><span class="n">bd</span><span class="o">-</span><span class="mi">964</span><span class="n">b</span><span class="o">-</span><span class="mi">7177</span><span class="n">a8e7f275</span><span class="o">&lt;/</span><span class="n">uuid</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">forward</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nat&#39;</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">nat</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">port</span> <span class="n">start</span><span class="o">=</span><span class="s1">&#39;1024&#39;</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;65535&#39;</span><span class="o">/&gt;</span>
+<span class="o">&lt;/</span><span class="n">nat</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">forward</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">bridge</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;brext&#39;</span> <span class="n">stp</span><span class="o">=</span><span class="s1">&#39;off&#39;</span> <span class="n">delay</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="o">/&gt;</span>
+<span class="o">&lt;</span><span class="n">mac</span> <span class="n">address</span><span class="o">=</span><span class="s1">&#39;52:54:00:47:ca:7c&#39;</span><span class="o">/&gt;</span>
+<span class="o">&lt;</span><span class="n">ip</span> <span class="n">address</span><span class="o">=</span><span class="s1">&#39;192.168.23.1&#39;</span> <span class="n">netmask</span><span class="o">=</span><span class="s1">&#39;255.255.255.0&#39;</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">dhcp</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="nb">range</span> <span class="n">start</span><span class="o">=</span><span class="s1">&#39;192.168.23.10&#39;</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;192.168.23.50&#39;</span><span class="o">/&gt;</span>
+<span class="o">&lt;/</span><span class="n">dhcp</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">ip</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">network</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>overcloud</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">virsh</span> <span class="c1"># net-dumpxml overcloud</span>
+<span class="o">&lt;</span><span class="n">network</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">overcloud</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">uuid</span><span class="o">&gt;</span><span class="mi">778053</span><span class="n">f3</span><span class="o">-</span><span class="n">a7df</span><span class="o">-</span><span class="mi">4</span><span class="n">e44</span><span class="o">-</span><span class="mi">9</span><span class="n">ade</span><span class="o">-</span><span class="mi">01</span><span class="n">d693d0b2fc</span><span class="o">&lt;/</span><span class="n">uuid</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">bridge</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;brovc&#39;</span> <span class="n">stp</span><span class="o">=</span><span class="s1">&#39;off&#39;</span> <span class="n">delay</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="o">/&gt;</span>
+<span class="o">&lt;</span><span class="n">mac</span> <span class="n">address</span><span class="o">=</span><span class="s1">&#39;52:54:00:cc:08:9e&#39;</span><span class="o">/&gt;</span>
+<span class="o">&lt;/</span><span class="n">network</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="undercloud-post-install-sh">
+<h2>undercloud-post-install.sh の実行<a class="headerlink" href="#undercloud-post-install-sh" title="Permalink to this headline">¶</a></h2>
+<p>flavorの作成、vlanの設定などが実施される。</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ source stackrc; ./undercloud-post-install.sh
+</pre></div>
+</div>
+</div>
+<div class="section" id="overcloud">
+<h2>Overcloudの作成<a class="headerlink" href="#overcloud" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>[UNDERCLOUD]overcloudの作成。[LOCAL] から[VIRTHOST]上のundercloudノード[UNDERCLOUD]にログイン後、下記スクリプトの実行でovercloudにノードが作成される。</li>
+<li>overcloud-deploy.shを実行</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ ~/overcloud-deploy.sh
+</pre></div>
+</div>
+<ul class="simple">
+<li>[UNDERCLOUD]作成されたstackとノードを確認</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ heat stack-list
++--------------------------------------+------------+-----------------+---------------------+--------------+
+| id                                   | stack_name | stack_status    | creation_time       | updated_time |
++--------------------------------------+------------+-----------------+---------------------+--------------+
+| 51987e1a-f97f-4abb-a1cb-20bd36f0fdfe | overcloud  | CREATE_COMPLETE | 2016-07-05T01:46:10 | None         |
++--------------------------------------+------------+-----------------+---------------------+--------------+
+
+$ nova list
++--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+| ID                                   | Name                    | Status | Task State | Power State | Networks           |
++--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+| 97c6ebe5-3ada-48b6-925d-6bbface660c2 | overcloud-controller-0  | ACTIVE | -          | Running     | ctlplane=192.0.2.8 |
+| daffaf64-19d3-4ebe-aebf-3c993d51a6b7 | overcloud-novacompute-0 | ACTIVE | -          | Running     | ctlplane=192.0.2.7 |
++--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+</pre></div>
+</div>
+<ul class="simple">
+<li>[UNDERCLOUD]overcloud-deployの後の処理。hostsファイルのアップデートとheat_stack_ownerの作成。</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ~/overcloud-deploy-post.sh
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>overcloud 作成後の確認<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ source stackrc
+[stack@undercloud ~]$ heat stack-list
++--------------------------------------+------------+-----------------+---------------------+---------------------+
+| id                                   | stack_name | stack_status    | creation_time       | updated_time        |
++--------------------------------------+------------+-----------------+---------------------+---------------------+
+| 3b51dc09-4dcd-4a2a-a26a-f33d3b2c765e | overcloud  | UPDATE_COMPLETE | 2016-07-25T10:13:11 | 2016-07-26T01:52:56 |
++--------------------------------------+------------+-----------------+---------------------+---------------------+
+
+[stack@undercloud ~]$ nova list
++--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+| ID                                   | Name                    | Status | Task State | Power State | Networks           |
++--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+| 0d959e01-5628-4943-a839-1d52eeac75c0 | overcloud-controller-0  | ACTIVE | -          | Running     | ctlplane=192.0.2.7 |
+| dae87061-e4c9-433e-8c85-eae112a7323f | overcloud-novacompute-0 | ACTIVE | -          | Running     | ctlplane=192.0.2.8 |
++--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+
+
+controllerにログイン
+[stack@undercloud ~]$ ssh -l heat-admin 192.0.2.7
+</pre></div>
+</div>
+<p>下記コマンドで、heat_stack_ownerが作成されていることを確認する。</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ source overcloudrc
+[stack@undercloud ~]$ openstack role list
++----------------------------------+------------------+
+| ID                               | Name             |
++----------------------------------+------------------+
+| 12bf20ae6e214276aea5f2502cbe16e8 | ResellerAdmin    |
+| 2494d7eab6ed42cdae19198607ba7f90 | heat_stack_user  |
+| 34d68462930f4990889f301e864bcc04 | heat_stack_owner |
+| 7d8d21f5809b4e449517d42e18f83bd9 | admin            |
+| 9fe2ff9ee4384b1894a90878d3e92bab | _member_         |
+| e6433c8220a640108b7043253c971798 | swiftoperator    |
++----------------------------------+------------------+
+</pre></div>
+</div>
+</div>
+<div class="section" id="test">
+<h2>testの実施<a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h2>
+<p>下記によりtempestを用いたテストが実施される。</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ source overcloudrc
+[stack@undercloud ~]$ ./overcloud-validate.sh
+</pre></div>
+</div>
+<p>テスト結果は、tempest_console.log, tempest.htmlに書き出される。</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">======</span>
+<span class="n">Totals</span>
+<span class="o">======</span>
+<span class="n">Ran</span><span class="p">:</span> <span class="mi">108</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">487.0000</span> <span class="n">sec</span><span class="o">.</span>
+<span class="o">-</span> <span class="n">Passed</span><span class="p">:</span> <span class="mi">99</span>
+<span class="o">-</span> <span class="n">Skipped</span><span class="p">:</span> <span class="mi">9</span>
+<span class="o">-</span> <span class="n">Expected</span> <span class="n">Fail</span><span class="p">:</span> <span class="mi">0</span>
+<span class="o">-</span> <span class="n">Unexpected</span> <span class="n">Success</span><span class="p">:</span> <span class="mi">0</span>
+<span class="o">-</span> <span class="n">Failed</span><span class="p">:</span> <span class="mi">0</span>
+<span class="n">Sum</span> <span class="n">of</span> <span class="n">execute</span> <span class="n">time</span> <span class="k">for</span> <span class="n">each</span> <span class="n">test</span><span class="p">:</span> <span class="mf">597.7349</span> <span class="n">sec</span><span class="o">.</span>
+
+<span class="o">==============</span>
+<span class="n">Worker</span> <span class="n">Balance</span>
+<span class="o">==============</span>
+<span class="o">-</span> <span class="n">Worker</span> <span class="mi">0</span> <span class="p">(</span><span class="mi">19</span> <span class="n">tests</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">:</span><span class="mi">07</span><span class="p">:</span><span class="mf">36.267993</span>
+<span class="o">-</span> <span class="n">Worker</span> <span class="mi">1</span> <span class="p">(</span><span class="mi">29</span> <span class="n">tests</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">:</span><span class="mi">07</span><span class="p">:</span><span class="mf">07.313825</span>
+<span class="o">-</span> <span class="n">Worker</span> <span class="mi">2</span> <span class="p">(</span><span class="mi">31</span> <span class="n">tests</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">:</span><span class="mi">07</span><span class="p">:</span><span class="mf">01.257871</span>
+<span class="o">-</span> <span class="n">Worker</span> <span class="mi">3</span> <span class="p">(</span><span class="mi">29</span> <span class="n">tests</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">:</span><span class="mi">06</span><span class="p">:</span><span class="mf">38.237069</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="accessing-horizon-in-overcloud-ssh-port-forwarding">
+<h2>Accessing Horizon in overcloud / SSH Port Forwarding<a class="headerlink" href="#accessing-horizon-in-overcloud-ssh-port-forwarding" title="Permalink to this headline">¶</a></h2>
+<p>下記コマンドで、localhostのport 8080をovercloud-public-vipのport 80にフォワードする。</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@localhost</span> <span class="o">~</span><span class="p">]</span><span class="c1"># ssh -F /root/.quickstart/ssh.config.ansible -L 8080:overcloud-public-vip:80 undercloud</span>
+</pre></div>
+</div>
+<p>port forwardingの設定後、<a class="reference external" href="http://localhost:8080">http://localhost:8080</a> で、overcloudのHorizonにアクセスできる。
+admin / password (パスワードは、tripleo-overcloud-passwordsのOVERCLOUD_ADMIN_PASSWORD=Uwk2gwxrNVQv4tUXWrJB4ngwv)</p>
+</div>
+<div class="section" id="id3">
+<h2>状態の観察<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ ip addr
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
+link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+inet 127.0.0.1/8 scope host lo
+valid_lft forever preferred_lft forever
+inet6 ::1/128 scope host
+valid_lft forever preferred_lft forever
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000
+link/ether 00:b2:28:5d:ed:5d brd ff:ff:ff:ff:ff:ff
+inet 192.168.23.14/24 brd 192.168.23.255 scope global dynamic eth0
+valid_lft 3089sec preferred_lft 3089sec
+inet6 fe80::2b2:28ff:fe5d:ed5d/64 scope link
+valid_lft forever preferred_lft forever
+3: eth1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast master ovs-system state UP qlen 1000
+link/ether 00:b2:28:5d:ed:5f brd ff:ff:ff:ff:ff:ff
+inet6 fe80::2b2:28ff:fe5d:ed5f/64 scope link
+valid_lft forever preferred_lft forever
+4: virbr0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu 1500 qdisc noqueue state DOWN
+link/ether 52:54:00:bd:70:cb brd ff:ff:ff:ff:ff:ff
+inet 192.168.122.1/24 brd 192.168.122.255 scope global virbr0
+valid_lft forever preferred_lft forever
+5: virbr0-nic: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc pfifo_fast master virbr0 state DOWN qlen 500
+link/ether 52:54:00:bd:70:cb brd ff:ff:ff:ff:ff:ff
+6: ovs-system: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN
+link/ether 7a:23:f3:7b:24:41 brd ff:ff:ff:ff:ff:ff
+7: br-ctlplane: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN
+link/ether 00:b2:28:5d:ed:5f brd ff:ff:ff:ff:ff:ff
+inet 192.0.2.1/24 brd 192.0.2.255 scope global br-ctlplane
+valid_lft forever preferred_lft forever
+inet6 fe80::2b2:28ff:fe5d:ed5f/64 scope link
+valid_lft forever preferred_lft forever
+8: br-int: &lt;BROADCAST,MULTICAST&gt; mtu 1500 qdisc noop state DOWN
+link/ether 72:f7:1e:6c:82:42 brd ff:ff:ff:ff:ff:ff
+10: vlan10: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN
+link/ether aa:ad:22:5d:34:ab brd ff:ff:ff:ff:ff:ff
+inet 10.0.0.1/24 brd 10.0.0.255 scope global vlan10
+valid_lft forever preferred_lft forever
+inet6 fe80::a8ad:22ff:fe5d:34ab/64 scope link
+valid_lft forever preferred_lft forever
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ sudo iptables -S
+-P INPUT ACCEPT
+-P FORWARD ACCEPT
+-P OUTPUT ACCEPT
+-N ironic-inspector
+-N neutron-filter-top
+-N neutron-openvswi-FORWARD
+-N neutron-openvswi-INPUT
+-N neutron-openvswi-OUTPUT
+-N neutron-openvswi-local
+-N neutron-openvswi-scope
+-N neutron-openvswi-sg-chain
+-N neutron-openvswi-sg-fallback
+-A INPUT -i br-ctlplane -p udp -m udp --dport 67 -j ironic-inspector
+-A INPUT -j neutron-openvswi-INPUT
+-A INPUT -p tcp -m tcp --dport 8787 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 5050 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 8042,13042 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 8777,13777 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 8779 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 8080,13808 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 8000,8003,8004,13800,13003,13004 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 5672 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 6385,13385 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 9191 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 9000 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 8888,13888 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 8989,13989 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 9292,13292 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 5900:5999 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 6080,13080 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 9696,13696 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 8585 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 5000,35357,13000,13357 -j ACCEPT
+-A INPUT -p tcp -m multiport --dports 8773,8774,8775,13773,13774,13775 -j ACCEPT
+-A INPUT -p udp -m udp --dport 69 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 8088 -j ACCEPT
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+-A FORWARD -j neutron-filter-top
+-A FORWARD -j neutron-openvswi-FORWARD
+-A FORWARD -d 192.168.122.0/24 -j ACCEPT
+-A FORWARD -d 192.0.2.0/24 -j ACCEPT
+-A OUTPUT -j neutron-filter-top
+-A OUTPUT -j neutron-openvswi-OUTPUT
+-A ironic-inspector -j REJECT --reject-with icmp-port-unreachable
+-A neutron-filter-top -j neutron-openvswi-local
+-A neutron-openvswi-FORWARD -j neutron-openvswi-scope
+-A neutron-openvswi-sg-chain -j ACCEPT
+-A neutron-openvswi-sg-fallback -m comment --comment &quot;Default drop rule for unmatched traffic.&quot; -j DROP
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ neutron port-list
++------------------+------------------+------------------+---------------------+
+| id               | name             | mac_address      | fixed_ips           |
++------------------+------------------+------------------+---------------------+
+| d31a2147-40d5    |                  | 00:53:d9:ed:08:c | {&quot;subnet_id&quot;: &quot;4d7a |
+| -4eab-b8f2-ee9fc |                  | 1                | 0c21-9705-40a6-8088 |
+| d4b84b0          |                  |                  | -8c021cc12210&quot;,     |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;192.0.2.8&quot;}        |
+| 370b9153-862f-41 |                  | 00:53:d9:ed:08:b | {&quot;subnet_id&quot;: &quot;4d7a |
+| 34-b5ca-         |                  | d                | 0c21-9705-40a6-8088 |
+| f5a7c29e4163     |                  |                  | -8c021cc12210&quot;,     |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;192.0.2.7&quot;}        |
+| 011813e9-684e-41 |                  | fa:16:3e:bd:45:c | {&quot;subnet_id&quot;:       |
+| 95-918b-         |                  | c                | &quot;2bdc8d0c-9950-4043 |
+| c74c5953cf49     |                  |                  | -88cd-              |
+|                  |                  |                  | 25d59540e7b8&quot;,      |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;172.16.1.5&quot;}       |
+| 08a78877-5b62    |                  | fa:16:3e:a8:22:1 | {&quot;subnet_id&quot;: &quot;a67a |
+| -494b-a4bc-      |                  | e                | 1cdf-3951-4220-8036 |
+| e85403682b08     |                  |                  | -10dc92f120ed&quot;,     |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;172.16.2.7&quot;}       |
+| 098112be-c35a-4c |                  | fa:16:3e:af:b3:1 | {&quot;subnet_id&quot;: &quot;a67a |
+| 0b-8550-a73bda7f |                  | 1                | 1cdf-3951-4220-8036 |
+| 7010             |                  |                  | -10dc92f120ed&quot;,     |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;172.16.2.6&quot;}       |
+| 0a9aff88-04eb-40 | control_virtual_ | fa:16:3e:92:69:3 | {&quot;subnet_id&quot;: &quot;4d7a |
+| a6-8384-d096358c | ip               | 3                | 0c21-9705-40a6-8088 |
+| ed6c             |                  |                  | -8c021cc12210&quot;,     |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;192.0.2.6&quot;}        |
+| 3ad9319b-61ad-4b | storage_virtual_ | fa:16:3e:4c:d1:b | {&quot;subnet_id&quot;:       |
+| 58-bd77-147c9805 | ip               | 7                | &quot;2bdc8d0c-9950-4043 |
+| f99c             |                  |                  | -88cd-              |
+|                  |                  |                  | 25d59540e7b8&quot;,      |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;172.16.1.4&quot;}       |
+| 4477db6e-a178    | public_virtual_i | fa:16:3e:59:7a:d | {&quot;subnet_id&quot;:       |
+| -4ffb-927c-      | p                | c                | &quot;368856d0-6710      |
+| 2356dc541df6     |                  |                  | -442f-a1da-         |
+|                  |                  |                  | da567eed61ae&quot;,      |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;10.0.0.4&quot;}         |
+| 5e0f2c28-a92e-   |                  | fa:16:3e:a2:2d:f | {&quot;subnet_id&quot;: &quot;8544 |
+| 4e8a-b52a-       |                  | 9                | a746-6333-4466-b064 |
+| 6b09c3ecdd41     |                  |                  | -720e26337b85&quot;,     |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;172.16.3.5&quot;}       |
+| 7497623a-2b05    | redis_virtual_ip | fa:16:3e:82:d9:b | {&quot;subnet_id&quot;: &quot;a67a |
+| -49bc-92e6-8544b |                  | 3                | 1cdf-3951-4220-8036 |
+| b081de0          |                  |                  | -10dc92f120ed&quot;,     |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;172.16.2.5&quot;}       |
+| 91f05787-b6e5-49 |                  | fa:16:3e:9e:bf:e | {&quot;subnet_id&quot;:       |
+| 63-b380-997e4bc0 |                  | 1                | &quot;2bdc8d0c-9950-4043 |
+| 722c             |                  |                  | -88cd-              |
+|                  |                  |                  | 25d59540e7b8&quot;,      |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;172.16.1.6&quot;}       |
+| 939bcd62-70b3    | storage_manageme | fa:16:3e:a0:b0:3 | {&quot;subnet_id&quot;: &quot;8544 |
+| -441b-ace2-b91c1 | nt_virtual_ip    | c                | a746-6333-4466-b064 |
+| ecc7940          |                  |                  | -720e26337b85&quot;,     |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;172.16.3.4&quot;}       |
+| ab11854b-655e-   | internal_api_vir | fa:16:3e:16:9b:e | {&quot;subnet_id&quot;: &quot;a67a |
+| 4e55-839c-       | tual_ip          | e                | 1cdf-3951-4220-8036 |
+| 96bb7d85361f     |                  |                  | -10dc92f120ed&quot;,     |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;172.16.2.4&quot;}       |
+| c3c045fd-2539    |                  | fa:16:3e:ad:ab:8 | {&quot;subnet_id&quot;:       |
+| -412c-b2db-      |                  | b                | &quot;368856d0-6710      |
+| dea3a717bb28     |                  |                  | -442f-a1da-         |
+|                  |                  |                  | da567eed61ae&quot;,      |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;10.0.0.5&quot;}         |
+| c4346aa2-74aa-43 |                  | fa:16:3e:02:75:d | {&quot;subnet_id&quot;: &quot;4d7a |
+| 47-9a05-cfb70d0f |                  | 1                | 0c21-9705-40a6-8088 |
+| 6051             |                  |                  | -8c021cc12210&quot;,     |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;192.0.2.5&quot;}        |
+| f8173119-61fc-41 |                  | fa:16:3e:63:9a:9 | {&quot;subnet_id&quot;:       |
+| 63-b9bf-         |                  | 8                | &quot;1c9e087d-0be3-43b2 |
+| ec20818be5c7     |                  |                  | -b91c-              |
+|                  |                  |                  | 916854b08df2&quot;,      |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;172.16.0.4&quot;}       |
+| fc8da99b-20e8-44 |                  | fa:16:3e:c9:99:d | {&quot;subnet_id&quot;:       |
+| c5-8616-680bd1d9 |                  | 5                | &quot;1c9e087d-0be3-43b2 |
+| 6974             |                  |                  | -b91c-              |
+|                  |                  |                  | 916854b08df2&quot;,      |
+|                  |                  |                  | &quot;ip_address&quot;:       |
+|                  |                  |                  | &quot;172.16.0.5&quot;}       |
++------------------+------------------+------------------+---------------------+
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>構築した環境の削除<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>新規にquickstartを用いて環境作成するには、既存の構築環境がある場合、下記手順で削除を行う。</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># ./quickstart.sh -T all [VIRTHOST]</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">TripleO (Openstack-On-Openstack)</a><ul>
+<li><a class="reference internal" href="#links">Links</a></li>
+<li><a class="reference internal" href="#id1">実施環境</a></li>
+<li><a class="reference internal" href="#setup-using-tripleo-quickstart">Setup using tripleo-quickstart</a></li>
+<li><a class="reference internal" href="#accessing-undercloud-overcloud">Accessing undercloud/overcloud</a></li>
+<li><a class="reference internal" href="#quickstart">quickstart実施後の確認</a></li>
+<li><a class="reference internal" href="#undercloud-post-install-sh">undercloud-post-install.sh の実行</a></li>
+<li><a class="reference internal" href="#overcloud">Overcloudの作成</a></li>
+<li><a class="reference internal" href="#id2">overcloud 作成後の確認</a></li>
+<li><a class="reference internal" href="#test">testの実施</a></li>
+<li><a class="reference internal" href="#accessing-horizon-in-overcloud-ssh-port-forwarding">Accessing Horizon in overcloud / SSH Port Forwarding</a></li>
+<li><a class="reference internal" href="#id3">状態の観察</a></li>
+<li><a class="reference internal" href="#id4">構築した環境の削除</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to OSP-memo&#8217;s documentation!</a></li>
+      <li>Next: <a href="tripleO-ha.html" title="next chapter">TripleO quickstartを用いてHA (overcloud)を作成する</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tripleO.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Hiro Mihara.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/tripleO.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
