@@ -1,0 +1,630 @@
+===================================
+TripleO (Openstack-On-Openstack)
+===================================
+
+Links
+-------------------
+- tripleo-quickstart
+  https://github.com/openstack/tripleo-quickstart
+
+- Deploy the overcloud
+  http://tripleo.org/basic_deployment/basic_deployment_cli.html#deploy-the-overcloud
+  
+
+実施環境
+------------------------------------
+- スクリプト実行元ホストマシン[LOCAL]
+::
+
+   OS: Red Hat Enterprise Linux Server release 7.2 (Maipo)
+   Linux dhcp-193-176.nrt.redhat.com 3.10.0-327.el7.x86_64 #1 SMP Thu Oct 29 17:29:29 EDT 2015 x86_64 x86_64 x86_64 GNU/Linux
+
+   CPU: Intel(R) Core(TM) i7-3520M CPU @ 2.90GHz x 4
+   MemTotal:        7703760 kB
+   
+- スクリプト実行先マシン[VIRTHOST]
+::
+   
+  OS: CentOS Linux release 7.2.1511 (Core)
+  Linux dhcp-201-132.nrt.redhat.com 3.10.0-327.22.2.el7.x86_64 #1 SMP Thu Jun 23 17:05:11 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+  
+  CPU: Intel(R) Xeon(R) CPU E5-2620 v3 @ 2.40GHz x 24
+  MemTotal:       65560756 kB
+
+ - (*) [LOCAL]と[VIRTHOST]は同一サーバでも実施可能です。
+  
+Setup using tripleo-quickstart
+-------------------------------------------
+1. （Ansibleのための準備）まずは、スクリプト実行元ホストマシン[LOCAL]からスクリプト実行先マシン[VIRTHOST]へパスワード無しでrootがログインできるようにする。
+
+- [LOCAL]公開鍵の作成
+::
+
+   # cd ~/.ssh
+   # ssh-keygen -t rsa
+
+- [LOCAL]公開鍵をログイン先仮想マシンに転送
+::
+
+   # scp id_rsa.pub 192.168.130.121:/root
+
+- [VIRTHOST]公開鍵をログイン先仮想マシンに登録
+::
+
+   # cd ~/.ssh
+   # cat ../id_rsa.pub >> authorized_keys
+   # chmod 600 authorized_keys
+
+- [VIRTHOST]公開鍵認証の設定をし、sshdサービスを再起動
+::
+
+   /etc/ssh/sshd_config に、
+   PubkeyAuthentication yes
+   を追記
+
+   # systemctl restart sshd.service
+
+- [VIRTHOST]うまくいったか確認
+::
+
+   # ssh root@192.168.130.121 uname -a
+   Linux c1.osp.redhat.com 3.10.0-327.22.2.el7.x86_64 #1 SMP Thu Jun 23 17:05:11 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+
+2. tripleo-quickstartの実行
+
+- [LOCAL]quickstartスクリプトを取得
+::
+
+   $ wget https://raw.githubusercontent.com/openstack/tripleo-quickstart/master/quickstart.sh
+
+- [LOCAL]依存モジュールの解決
+::
+
+   $ sudo bash quickstart.sh --install-deps
+
+これにより、必要なモジュールがダウンロード、インストールされる。
+
+- [LOCAL]インストール実行(root) 
+::
+
+   # bash quickstart.sh --tags all VIRTHOST
+
+上記VIRTHOSTは、VIRTHOSTのホスト名もしくはIPアドレスで置き換える。
+
+- 実行結果
+::
+
+   TASK [setup] *******************************************************************
+   Tuesday 05 July 2016  09:46:01 +0900 (0:00:00.094)       0:28:30.714 ********** 
+   ok: [undercloud]
+
+   PLAY RECAP *********************************************************************
+   10.64.201.132              : ok=87   changed=36   unreachable=0    failed=0   
+   localhost                  : ok=15   changed=7    unreachable=0    failed=0   
+   undercloud                 : ok=27   changed=16   unreachable=0    failed=0   
+
+   Tuesday 05 July 2016  09:46:04 +0900 (0:00:03.060)       0:28:33.774 ********** 
+   =============================================================================== 
+   setup/undercloud : Get image ------------------------------------------ 771.67s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/fetch_image.yml:81 
+   tripleo/undercloud : Install the undercloud --------------------------- 489.10s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/tripleo/undercloud/tasks/install-undercloud.yml:1 
+   tripleo/undercloud : Prepare the undercloud for deploy ---------------- 171.05s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/tripleo/undercloud/tasks/post-install.yml:27 
+   setup/undercloud : Get undercloud vm ip address ------------------------ 71.89s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/main.yml:178 
+   setup/undercloud : Resize undercloud image (call virt-resize) ---------- 68.24s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/main.yml:127 
+   setup/undercloud : Copy instackenv.json to appliance ------------------- 39.77s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/main.yml:58 
+   setup/undercloud : Upload undercloud volume to storage pool ------------ 21.91s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/main.yml:147 
+   tripleo/undercloud : Create undercloud configuration -------------------- 6.61s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/tripleo/undercloud/tasks/create-scripts.yml:3 
+   setup/undercloud : Inject undercloud ssh public key to appliance -------- 6.30s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/main.yml:77 
+   tripleo/undercloud : restart ironic conductor after changing configuration --- 5.89s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/tripleo/undercloud/tasks/main.yml:23 
+   setup/undercloud : Get actual md5 checksum of image --------------------- 5.87s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/fetch_image.yml:92 
+   setup/undercloud : Perform selinux relabel on undercloud image ---------- 3.40s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/main.yml:99 
+   setup ------------------------------------------------------------------- 3.06s
+   None --------------------------------------------------------------------------
+   setup/undercloud : Get qcow2 image from cache --------------------------- 2.08s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/fetch_image.yml:144 
+   setup ------------------------------------------------------------------- 1.68s
+   None --------------------------------------------------------------------------
+   setup/undercloud : Get image expected checksum -------------------------- 1.23s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/fetch_image.yml:53 
+   setup/overcloud : Write instackenv script ------------------------------- 0.86s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/overcloud/tasks/main.yml:81 
+   tripleo/undercloud : Create network environment file for network isolation --- 0.86s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/tripleo/undercloud/tasks/post-install.yml:32 
+   tripleo/overcloud : Create overcloud validate script -------------------- 0.82s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/tripleo/overcloud/tasks/create-scripts.yml:10 
+   setup/user : Generate ssh keys ------------------------------------------ 0.81s
+   /root/.quickstart/usr/local/share/tripleo-quickstart/roles/libvirt/setup/user/tasks/main.yml:19 
+
+Accessing undercloud/overcloud
+-------------------------------------
+- [LOCAL]quickstartが作成した設定ファイルを利用してundercloudにアクセスできる。(rootユーザで実施）
+::
+
+   # ssh -F ~/.quickstart/ssh.config.ansible undercloud
+
+quickstart実施後の確認
+-----------------------------------------------------
+   
+- [UNDERCLOUD]Unsercloudがインストールされたことの確認
+
+  ::
+
+   [stack@undercloud ~]$ source stackrc 
+   [stack@undercloud ~]$ openstack catalog list
+   +------------------+-------------------------+---------------------------------+
+   | Name             | Type                    | Endpoints                       |
+   +------------------+-------------------------+---------------------------------+
+   | nova             | compute                 | regionOne                       |
+   |                  |                         |   publicURL: http://192.0.2.1:8 |
+   |                  |                         | 774/v2/ea8fddafbb83482686cc364c |
+   |                  |                         | fa07a008                        |
+   |                  |                         |   internalURL: http://192.0.2.1 |
+   |                  |                         | :8774/v2/ea8fddafbb83482686cc36 |
+   |                  |                         | 4cfa07a008                      |
+   |                  |                         |   adminURL: http://192.0.2.1:87 |
+   |                  |                         | 74/v2/ea8fddafbb83482686cc364cf |
+   |                  |                         | a07a008                         |
+   |                  |                         |                                 |
+   | neutron          | network                 | regionOne                       |
+   |                  |                         |   publicURL:                    |
+   |                  |                         | http://192.0.2.1:9696           |
+   |                  |                         |   internalURL:                  |
+   |                  |                         | http://192.0.2.1:9696           |
+   |                  |                         |   adminURL:                     |
+   |                  |                         | http://192.0.2.1:9696           |
+   |                  |                         |                                 |
+   | novav3           | computev3               | regionOne                       |
+   |                  |                         |   publicURL:                    |
+   |                  |                         | http://192.0.2.1:8774/v3        |
+   |                  |                         |   internalURL:                  |
+   |                  |                         | http://192.0.2.1:8774/v3        |
+   |                  |                         |   adminURL:                     |
+   |                  |                         | http://192.0.2.1:8774/v3        |
+   |                  |                         |                                 |
+   | aodh             | alarming                | regionOne                       |
+   |                  |                         |   publicURL:                    |
+   |                  |                         | http://192.0.2.1:8042           |
+   |                  |                         |   internalURL:                  |
+   |                  |                         | http://192.0.2.1:8042           |
+   |                  |                         |   adminURL:                     |
+   |                  |                         | http://192.0.2.1:8042           |
+   |                  |                         |                                 |
+   | Image Service    | image                   | regionOne                       |
+   |                  |                         |   publicURL:                    |
+   |                  |                         | http://192.0.2.1:9292           |
+   |                  |                         |   internalURL:                  |
+   |                  |                         | http://192.0.2.1:9292           |
+   |                  |                         |   adminURL:                     |
+   |                  |                         | http://192.0.2.1:9292           |
+   |                  |                         |                                 |
+   | ceilometer       | metering                | regionOne                       |
+   |                  |                         |   publicURL:                    |
+   |                  |                         | http://192.0.2.1:8777           |
+   |                  |                         |   internalURL:                  |
+   |                  |                         | http://192.0.2.1:8777           |
+   |                  |                         |   adminURL:                     |
+   |                  |                         | http://192.0.2.1:8777           |
+   |                  |                         |                                 |
+   | ironic           | baremetal               | regionOne                       |
+   |                  |                         |   publicURL:                    |
+   |                  |                         | http://192.0.2.1:6385           |
+   |                  |                         |   internalURL:                  |
+   |                  |                         | http://192.0.2.1:6385           |
+   |                  |                         |   adminURL:                     |
+   |                  |                         | http://192.0.2.1:6385           |
+   |                  |                         |                                 |
+   | heat             | orchestration           | regionOne                       |
+   |                  |                         |   publicURL: http://192.0.2.1:8 |
+   |                  |                         | 004/v1/ea8fddafbb83482686cc364c |
+   |                  |                         | fa07a008                        |
+   |                  |                         |   internalURL: http://192.0.2.1 |
+   |                  |                         | :8004/v1/ea8fddafbb83482686cc36 |
+   |                  |                         | 4cfa07a008                      |
+   |                  |                         |   adminURL: http://192.0.2.1:80 |
+   |                  |                         | 04/v1/ea8fddafbb83482686cc364cf |
+   |                  |                         | a07a008                         |
+   |                  |                         |                                 |
+   | swift            | object-store            | regionOne                       |
+   |                  |                         |   publicURL: http://192.0.2.1:8 |
+   |                  |                         | 080/v1/AUTH_ea8fddafbb83482686c |
+   |                  |                         | c364cfa07a008                   |
+   |                  |                         |   internalURL: http://192.0.2.1 |
+   |                  |                         | :8080/v1/AUTH_ea8fddafbb8348268 |
+   |                  |                         | 6cc364cfa07a008                 |
+   |                  |                         |   adminURL:                     |
+   |                  |                         | http://192.0.2.1:8080           |
+   |                  |                         |                                 |
+   | ironic-inspector | baremetal-introspection | regionOne                       |
+   |                  |                         |   publicURL:                    |
+   |                  |                         | http://192.0.2.1:5050           |
+   |                  |                         |   internalURL:                  |
+   |                  |                         | http://192.0.2.1:5050           |
+   |                  |                         |   adminURL:                     |
+   |                  |                         | http://192.0.2.1:5050           |
+   |                  |                         |                                 |
+   | keystone         | identity                | regionOne                       |
+   |                  |                         |   publicURL:                    |
+   |                  |                         | http://192.0.2.1:5000/v2.0      |
+   |                  |                         |   internalURL:                  |
+   |                  |                         | http://192.0.2.1:5000/v2.0      |
+   |                  |                         |   adminURL:                     |
+   |                  |                         | http://192.0.2.1:35357/v2.0     |
+   |                  |                         |                                 |
+   +------------------+-------------------------+---------------------------------+
+   
+
+- [LOCAL]作成されたネットワークの確認
+external
+::
+
+   virsh # net-dumpxml external
+   <network>
+   <name>external</name>
+   <uuid>4fd64041-0442-44bd-964b-7177a8e7f275</uuid>
+   <forward mode='nat'>
+   <nat>
+   <port start='1024' end='65535'/>
+   </nat>
+   </forward>
+   <bridge name='brext' stp='off' delay='0'/>
+   <mac address='52:54:00:47:ca:7c'/>
+   <ip address='192.168.23.1' netmask='255.255.255.0'>
+   <dhcp>
+   <range start='192.168.23.10' end='192.168.23.50'/>
+   </dhcp>
+   </ip>
+   </network>
+
+overcloud
+::
+
+   virsh # net-dumpxml overcloud
+   <network>
+   <name>overcloud</name>
+   <uuid>778053f3-a7df-4e44-9ade-01d693d0b2fc</uuid>
+   <bridge name='brovc' stp='off' delay='0'/>
+   <mac address='52:54:00:cc:08:9e'/>
+   </network>
+
+undercloud-post-install.sh の実行
+---------------------------------------------
+flavorの作成、vlanの設定などが実施される。
+::
+
+   $ source stackrc; ./undercloud-post-install.sh
+
+
+Overcloudの作成
+------------------------------------
+- [UNDERCLOUD]overcloudの作成。[LOCAL] から[VIRTHOST]上のundercloudノード[UNDERCLOUD]にログイン後、下記スクリプトの実行でovercloudにノードが作成される。
+  
+- overcloud-deploy.shを実行
+::
+
+   [stack@undercloud ~]$ ~/overcloud-deploy.sh
+
+- [UNDERCLOUD]作成されたstackとノードを確認
+::
+
+   $ heat stack-list
+   +--------------------------------------+------------+-----------------+---------------------+--------------+
+   | id                                   | stack_name | stack_status    | creation_time       | updated_time |
+   +--------------------------------------+------------+-----------------+---------------------+--------------+
+   | 51987e1a-f97f-4abb-a1cb-20bd36f0fdfe | overcloud  | CREATE_COMPLETE | 2016-07-05T01:46:10 | None         |
+   +--------------------------------------+------------+-----------------+---------------------+--------------+
+
+   $ nova list
+   +--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+   | ID                                   | Name                    | Status | Task State | Power State | Networks           |
+   +--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+   | 97c6ebe5-3ada-48b6-925d-6bbface660c2 | overcloud-controller-0  | ACTIVE | -          | Running     | ctlplane=192.0.2.8 |
+   | daffaf64-19d3-4ebe-aebf-3c993d51a6b7 | overcloud-novacompute-0 | ACTIVE | -          | Running     | ctlplane=192.0.2.7 |
+   +--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+
+- [UNDERCLOUD]overcloud-deployの後の処理。hostsファイルのアップデートとheat_stack_ownerの作成。
+::
+
+   $ ~/overcloud-deploy-post.sh
+
+overcloud 作成後の確認
+----------------------------------
+::
+
+   [stack@undercloud ~]$ source stackrc 
+   [stack@undercloud ~]$ heat stack-list
+   +--------------------------------------+------------+-----------------+---------------------+---------------------+
+   | id                                   | stack_name | stack_status    | creation_time       | updated_time        |
+   +--------------------------------------+------------+-----------------+---------------------+---------------------+
+   | 3b51dc09-4dcd-4a2a-a26a-f33d3b2c765e | overcloud  | UPDATE_COMPLETE | 2016-07-25T10:13:11 | 2016-07-26T01:52:56 |
+   +--------------------------------------+------------+-----------------+---------------------+---------------------+
+
+   [stack@undercloud ~]$ nova list
+   +--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+   | ID                                   | Name                    | Status | Task State | Power State | Networks           |
+   +--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+   | 0d959e01-5628-4943-a839-1d52eeac75c0 | overcloud-controller-0  | ACTIVE | -          | Running     | ctlplane=192.0.2.7 |
+   | dae87061-e4c9-433e-8c85-eae112a7323f | overcloud-novacompute-0 | ACTIVE | -          | Running     | ctlplane=192.0.2.8 |
+   +--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
+
+
+   controllerにログイン
+   [stack@undercloud ~]$ ssh -l heat-admin 192.0.2.7
+
+
+下記コマンドで、heat_stack_ownerが作成されていることを確認する。
+::
+
+   [stack@undercloud ~]$ source overcloudrc 
+   [stack@undercloud ~]$ openstack role list
+   +----------------------------------+------------------+
+   | ID                               | Name             |
+   +----------------------------------+------------------+
+   | 12bf20ae6e214276aea5f2502cbe16e8 | ResellerAdmin    |
+   | 2494d7eab6ed42cdae19198607ba7f90 | heat_stack_user  |
+   | 34d68462930f4990889f301e864bcc04 | heat_stack_owner |
+   | 7d8d21f5809b4e449517d42e18f83bd9 | admin            |
+   | 9fe2ff9ee4384b1894a90878d3e92bab | _member_         |
+   | e6433c8220a640108b7043253c971798 | swiftoperator    |
+   +----------------------------------+------------------+
+
+testの実施
+--------------------------------------
+下記によりtempestを用いたテストが実施される。
+::
+
+   [stack@undercloud ~]$ source overcloudrc 
+   [stack@undercloud ~]$ ./overcloud-validate.sh
+
+テスト結果は、tempest_console.log, tempest.htmlに書き出される。
+::
+
+   ======
+   Totals
+   ======
+   Ran: 108 tests in 487.0000 sec.
+   - Passed: 99
+   - Skipped: 9
+   - Expected Fail: 0
+   - Unexpected Success: 0
+   - Failed: 0
+   Sum of execute time for each test: 597.7349 sec.
+
+   ==============
+   Worker Balance
+   ==============
+   - Worker 0 (19 tests) => 0:07:36.267993
+   - Worker 1 (29 tests) => 0:07:07.313825
+   - Worker 2 (31 tests) => 0:07:01.257871
+   - Worker 3 (29 tests) => 0:06:38.237069
+
+
+Accessing Horizon in overcloud / SSH Port Forwarding
+---------------------------------------------------------------------
+下記コマンドで、localhostのport 8080をovercloud-public-vipのport 80にフォワードする。
+::
+
+   [root@localhost ~]# ssh -F /root/.quickstart/ssh.config.ansible -L 8080:overcloud-public-vip:80 undercloud
+
+port forwardingの設定後、http://localhost:8080 で、overcloudのHorizonにアクセスできる。
+admin / password (パスワードは、tripleo-overcloud-passwordsのOVERCLOUD_ADMIN_PASSWORD=Uwk2gwxrNVQv4tUXWrJB4ngwv)
+
+
+状態の観察
+----------------------------------------------------
+::
+
+   [stack@undercloud ~]$ ip addr
+   1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN 
+   link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+   inet 127.0.0.1/8 scope host lo
+   valid_lft forever preferred_lft forever
+   inet6 ::1/128 scope host 
+   valid_lft forever preferred_lft forever
+   2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP qlen 1000
+   link/ether 00:b2:28:5d:ed:5d brd ff:ff:ff:ff:ff:ff
+   inet 192.168.23.14/24 brd 192.168.23.255 scope global dynamic eth0
+   valid_lft 3089sec preferred_lft 3089sec
+   inet6 fe80::2b2:28ff:fe5d:ed5d/64 scope link 
+   valid_lft forever preferred_lft forever
+   3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast master ovs-system state UP qlen 1000
+   link/ether 00:b2:28:5d:ed:5f brd ff:ff:ff:ff:ff:ff
+   inet6 fe80::2b2:28ff:fe5d:ed5f/64 scope link 
+   valid_lft forever preferred_lft forever
+   4: virbr0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN 
+   link/ether 52:54:00:bd:70:cb brd ff:ff:ff:ff:ff:ff
+   inet 192.168.122.1/24 brd 192.168.122.255 scope global virbr0
+   valid_lft forever preferred_lft forever
+   5: virbr0-nic: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast master virbr0 state DOWN qlen 500
+   link/ether 52:54:00:bd:70:cb brd ff:ff:ff:ff:ff:ff
+   6: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN 
+   link/ether 7a:23:f3:7b:24:41 brd ff:ff:ff:ff:ff:ff
+   7: br-ctlplane: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN 
+   link/ether 00:b2:28:5d:ed:5f brd ff:ff:ff:ff:ff:ff
+   inet 192.0.2.1/24 brd 192.0.2.255 scope global br-ctlplane
+   valid_lft forever preferred_lft forever
+   inet6 fe80::2b2:28ff:fe5d:ed5f/64 scope link 
+   valid_lft forever preferred_lft forever
+   8: br-int: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN 
+   link/ether 72:f7:1e:6c:82:42 brd ff:ff:ff:ff:ff:ff
+   10: vlan10: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN 
+   link/ether aa:ad:22:5d:34:ab brd ff:ff:ff:ff:ff:ff
+   inet 10.0.0.1/24 brd 10.0.0.255 scope global vlan10
+   valid_lft forever preferred_lft forever
+   inet6 fe80::a8ad:22ff:fe5d:34ab/64 scope link 
+   valid_lft forever preferred_lft forever
+
+::
+
+   [stack@undercloud ~]$ sudo iptables -S
+   -P INPUT ACCEPT
+   -P FORWARD ACCEPT
+   -P OUTPUT ACCEPT
+   -N ironic-inspector
+   -N neutron-filter-top
+   -N neutron-openvswi-FORWARD
+   -N neutron-openvswi-INPUT
+   -N neutron-openvswi-OUTPUT
+   -N neutron-openvswi-local
+   -N neutron-openvswi-scope
+   -N neutron-openvswi-sg-chain
+   -N neutron-openvswi-sg-fallback
+   -A INPUT -i br-ctlplane -p udp -m udp --dport 67 -j ironic-inspector
+   -A INPUT -j neutron-openvswi-INPUT
+   -A INPUT -p tcp -m tcp --dport 8787 -j ACCEPT
+   -A INPUT -p tcp -m tcp --dport 5050 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 8042,13042 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 8777,13777 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 8779 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 8080,13808 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 8000,8003,8004,13800,13003,13004 -j ACCEPT
+   -A INPUT -p tcp -m tcp --dport 5672 -j ACCEPT
+   -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 6385,13385 -j ACCEPT
+   -A INPUT -p tcp -m tcp --dport 9191 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 9000 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 8888,13888 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 8989,13989 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 9292,13292 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 5900:5999 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 6080,13080 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 9696,13696 -j ACCEPT
+   -A INPUT -p tcp -m tcp --dport 8585 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 5000,35357,13000,13357 -j ACCEPT
+   -A INPUT -p tcp -m multiport --dports 8773,8774,8775,13773,13774,13775 -j ACCEPT
+   -A INPUT -p udp -m udp --dport 69 -j ACCEPT
+   -A INPUT -p tcp -m tcp --dport 8088 -j ACCEPT
+   -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+   -A INPUT -p icmp -j ACCEPT
+   -A INPUT -i lo -j ACCEPT
+   -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+   -A INPUT -j REJECT --reject-with icmp-host-prohibited
+   -A FORWARD -j neutron-filter-top
+   -A FORWARD -j neutron-openvswi-FORWARD
+   -A FORWARD -d 192.168.122.0/24 -j ACCEPT
+   -A FORWARD -d 192.0.2.0/24 -j ACCEPT
+   -A OUTPUT -j neutron-filter-top
+   -A OUTPUT -j neutron-openvswi-OUTPUT
+   -A ironic-inspector -j REJECT --reject-with icmp-port-unreachable
+   -A neutron-filter-top -j neutron-openvswi-local
+   -A neutron-openvswi-FORWARD -j neutron-openvswi-scope
+   -A neutron-openvswi-sg-chain -j ACCEPT
+   -A neutron-openvswi-sg-fallback -m comment --comment "Default drop rule for unmatched traffic." -j DROP
+
+::
+
+   [stack@undercloud ~]$ neutron port-list
+   +------------------+------------------+------------------+---------------------+
+   | id               | name             | mac_address      | fixed_ips           |
+   +------------------+------------------+------------------+---------------------+
+   | d31a2147-40d5    |                  | 00:53:d9:ed:08:c | {"subnet_id": "4d7a |
+   | -4eab-b8f2-ee9fc |                  | 1                | 0c21-9705-40a6-8088 |
+   | d4b84b0          |                  |                  | -8c021cc12210",     |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "192.0.2.8"}        |
+   | 370b9153-862f-41 |                  | 00:53:d9:ed:08:b | {"subnet_id": "4d7a |
+   | 34-b5ca-         |                  | d                | 0c21-9705-40a6-8088 |
+   | f5a7c29e4163     |                  |                  | -8c021cc12210",     |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "192.0.2.7"}        |
+   | 011813e9-684e-41 |                  | fa:16:3e:bd:45:c | {"subnet_id":       |
+   | 95-918b-         |                  | c                | "2bdc8d0c-9950-4043 |
+   | c74c5953cf49     |                  |                  | -88cd-              |
+   |                  |                  |                  | 25d59540e7b8",      |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "172.16.1.5"}       |
+   | 08a78877-5b62    |                  | fa:16:3e:a8:22:1 | {"subnet_id": "a67a |
+   | -494b-a4bc-      |                  | e                | 1cdf-3951-4220-8036 |
+   | e85403682b08     |                  |                  | -10dc92f120ed",     |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "172.16.2.7"}       |
+   | 098112be-c35a-4c |                  | fa:16:3e:af:b3:1 | {"subnet_id": "a67a |
+   | 0b-8550-a73bda7f |                  | 1                | 1cdf-3951-4220-8036 |
+   | 7010             |                  |                  | -10dc92f120ed",     |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "172.16.2.6"}       |
+   | 0a9aff88-04eb-40 | control_virtual_ | fa:16:3e:92:69:3 | {"subnet_id": "4d7a |
+   | a6-8384-d096358c | ip               | 3                | 0c21-9705-40a6-8088 |
+   | ed6c             |                  |                  | -8c021cc12210",     |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "192.0.2.6"}        |
+   | 3ad9319b-61ad-4b | storage_virtual_ | fa:16:3e:4c:d1:b | {"subnet_id":       |
+   | 58-bd77-147c9805 | ip               | 7                | "2bdc8d0c-9950-4043 |
+   | f99c             |                  |                  | -88cd-              |
+   |                  |                  |                  | 25d59540e7b8",      |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "172.16.1.4"}       |
+   | 4477db6e-a178    | public_virtual_i | fa:16:3e:59:7a:d | {"subnet_id":       |
+   | -4ffb-927c-      | p                | c                | "368856d0-6710      |
+   | 2356dc541df6     |                  |                  | -442f-a1da-         |
+   |                  |                  |                  | da567eed61ae",      |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "10.0.0.4"}         |
+   | 5e0f2c28-a92e-   |                  | fa:16:3e:a2:2d:f | {"subnet_id": "8544 |
+   | 4e8a-b52a-       |                  | 9                | a746-6333-4466-b064 |
+   | 6b09c3ecdd41     |                  |                  | -720e26337b85",     |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "172.16.3.5"}       |
+   | 7497623a-2b05    | redis_virtual_ip | fa:16:3e:82:d9:b | {"subnet_id": "a67a |
+   | -49bc-92e6-8544b |                  | 3                | 1cdf-3951-4220-8036 |
+   | b081de0          |                  |                  | -10dc92f120ed",     |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "172.16.2.5"}       |
+   | 91f05787-b6e5-49 |                  | fa:16:3e:9e:bf:e | {"subnet_id":       |
+   | 63-b380-997e4bc0 |                  | 1                | "2bdc8d0c-9950-4043 |
+   | 722c             |                  |                  | -88cd-              |
+   |                  |                  |                  | 25d59540e7b8",      |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "172.16.1.6"}       |
+   | 939bcd62-70b3    | storage_manageme | fa:16:3e:a0:b0:3 | {"subnet_id": "8544 |
+   | -441b-ace2-b91c1 | nt_virtual_ip    | c                | a746-6333-4466-b064 |
+   | ecc7940          |                  |                  | -720e26337b85",     |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "172.16.3.4"}       |
+   | ab11854b-655e-   | internal_api_vir | fa:16:3e:16:9b:e | {"subnet_id": "a67a |
+   | 4e55-839c-       | tual_ip          | e                | 1cdf-3951-4220-8036 |
+   | 96bb7d85361f     |                  |                  | -10dc92f120ed",     |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "172.16.2.4"}       |
+   | c3c045fd-2539    |                  | fa:16:3e:ad:ab:8 | {"subnet_id":       |
+   | -412c-b2db-      |                  | b                | "368856d0-6710      |
+   | dea3a717bb28     |                  |                  | -442f-a1da-         |
+   |                  |                  |                  | da567eed61ae",      |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "10.0.0.5"}         |
+   | c4346aa2-74aa-43 |                  | fa:16:3e:02:75:d | {"subnet_id": "4d7a |
+   | 47-9a05-cfb70d0f |                  | 1                | 0c21-9705-40a6-8088 |
+   | 6051             |                  |                  | -8c021cc12210",     |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "192.0.2.5"}        |
+   | f8173119-61fc-41 |                  | fa:16:3e:63:9a:9 | {"subnet_id":       |
+   | 63-b9bf-         |                  | 8                | "1c9e087d-0be3-43b2 |
+   | ec20818be5c7     |                  |                  | -b91c-              |
+   |                  |                  |                  | 916854b08df2",      |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "172.16.0.4"}       |
+   | fc8da99b-20e8-44 |                  | fa:16:3e:c9:99:d | {"subnet_id":       |
+   | c5-8616-680bd1d9 |                  | 5                | "1c9e087d-0be3-43b2 |
+   | 6974             |                  |                  | -b91c-              |
+   |                  |                  |                  | 916854b08df2",      |
+   |                  |                  |                  | "ip_address":       |
+   |                  |                  |                  | "172.16.0.5"}       |
+   +------------------+------------------+------------------+---------------------+
+
+
+構築した環境の削除
+-----------------------------------   
+新規にquickstartを用いて環境作成するには、既存の構築環境がある場合、下記手順で削除を行う。
+::
+
+   # ./quickstart.sh -T all [VIRTHOST]
