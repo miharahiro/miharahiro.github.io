@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>3. Cluster Resources &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" />
+    <link rel="next" title="4. Setup clustered web servers" href="clustered_web.html" />
+    <link rel="prev" title="2. PCSD Web UI" href="webui.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="clustered_web.html" title="4. Setup clustered web servers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="webui.html" title="2. PCSD Web UI"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="cluster-resources">
+<h1>3. Cluster Resources<a class="headerlink" href="#cluster-resources" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-a-cluster-resource">
+<h2>3.1. What is a Cluster Resource<a class="headerlink" href="#what-is-a-cluster-resource" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>quote from clusterlabs
+<a class="reference external" href="http://clusterlabs.org/doc/en-US/Pacemaker/1.0/html/Pacemaker_Explained/ch-resources.html#s-resource-intro">http://clusterlabs.org/doc/en-US/Pacemaker/1.0/html/Pacemaker_Explained/ch-resources.html#s-resource-intro</a></li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">The</span> <span class="n">role</span> <span class="n">of</span> <span class="n">a</span> <span class="n">resource</span> <span class="n">agent</span> <span class="ow">is</span> <span class="n">to</span> <span class="n">abstract</span> <span class="n">the</span> <span class="n">service</span> <span class="n">it</span> <span class="n">provides</span> <span class="ow">and</span> <span class="n">present</span> <span class="n">a</span> <span class="n">consistent</span> <span class="n">view</span> <span class="n">to</span> <span class="n">the</span> <span class="n">cluster</span><span class="p">,</span> <span class="n">which</span> <span class="n">allows</span> <span class="n">the</span> <span class="n">cluster</span> <span class="n">to</span> <span class="n">be</span> <span class="n">agnostic</span> <span class="n">about</span> <span class="n">the</span> <span class="n">resources</span> <span class="n">it</span> <span class="n">manages</span><span class="o">.</span> <span class="n">The</span> <span class="n">cluster</span> <span class="n">doesn</span><span class="s1">&#39;t need to understand how the resource works because it relies on the resource agent to do the right thing when given a start, stop or monitor command.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="resource-behavior">
+<h2>3.2. Resource behavior<a class="headerlink" href="#resource-behavior" title="Permalink to this headline">¶</a></h2>
+<p>is implemented in scripts under /usr/lib/ocf/resource.d/ . For example, the implementation of IPaddr2 is in /usr/lib/ocf/resource.d/heartbeat/IPaddr2 . Some of the parameters are defined in CIB. The followings are configs related to Virtual-IP.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">primitive</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;ocf&quot;</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;VIP&quot;</span> <span class="n">provider</span><span class="o">=</span><span class="s2">&quot;heartbeat&quot;</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;IPaddr2&quot;</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">instance_attributes</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;VIP-instance_attributes&quot;</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">nvpair</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;VIP-instance_attributes-ip&quot;</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ip&quot;</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;192.168.110.120&quot;</span><span class="o">/&gt;</span>
+    <span class="o">&lt;</span><span class="n">nvpair</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;VIP-instance_attributes-cidr_netmask&quot;</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cidr_netmask&quot;</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;24&quot;</span><span class="o">/&gt;</span>
+  <span class="o">&lt;/</span><span class="n">instance_attributes</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">operations</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">op</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;VIP-start-interval-0s&quot;</span> <span class="n">interval</span><span class="o">=</span><span class="s2">&quot;0s&quot;</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;start&quot;</span> <span class="n">timeout</span><span class="o">=</span><span class="s2">&quot;20s&quot;</span><span class="o">/&gt;</span>
+    <span class="o">&lt;</span><span class="n">op</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;VIP-stop-interval-0s&quot;</span> <span class="n">interval</span><span class="o">=</span><span class="s2">&quot;0s&quot;</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;stop&quot;</span> <span class="n">timeout</span><span class="o">=</span><span class="s2">&quot;20s&quot;</span><span class="o">/&gt;</span>
+    <span class="o">&lt;</span><span class="n">op</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;VIP-monitor-interval-30s&quot;</span> <span class="n">interval</span><span class="o">=</span><span class="s2">&quot;30s&quot;</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;monitor&quot;</span><span class="o">/&gt;</span>
+  <span class="o">&lt;/</span><span class="n">operations</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">primitive</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">3. Cluster Resources</a><ul>
+<li><a class="reference internal" href="#what-is-a-cluster-resource">3.1. What is a Cluster Resource</a></li>
+<li><a class="reference internal" href="#resource-behavior">3.2. Resource behavior</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="webui.html"
+                        title="previous chapter">2. PCSD Web UI</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="clustered_web.html"
+                        title="next chapter">4. Setup clustered web servers</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cluster-resource.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="clustered_web.html" title="4. Setup clustered web servers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="webui.html" title="2. PCSD Web UI"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

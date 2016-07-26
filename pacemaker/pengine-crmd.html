@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>19. Pengine - crmd &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" />
+    <link rel="next" title="20. cib - crmd" href="cib-crmd.html" />
+    <link rel="prev" title="18. Process of detaching/attaching ClusterIP in case of node/service failure" href="ClusterIP_detach.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="cib-crmd.html" title="20. cib - crmd"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ClusterIP_detach.html" title="18. Process of detaching/attaching ClusterIP in case of node/service failure"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pengine-crmd">
+<h1>19. Pengine - crmd<a class="headerlink" href="#pengine-crmd" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">2016-06-06</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Authosrs:</th><td class="field-body">大和さん</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>crmdでは pegineは pb_subsystem-&gt;sourceで表現されている。通信時にこれを指定する。</li>
+<li>crmdは do_pe_invoke_callback経由でpengineに処理を仰ぐ。</li>
+<li>pegineは pe_ipc_dispatchでcrmdからの依頼を受ける。</li>
+<li>pegineはcrmdからの依頼があると、次に何をすれば良いかをdo_calculationsにてプログラミングしてあげる。</li>
+<li>プログラミングの結果はxmlNodeにまとめて、crmdに送る。このといprocess_pe_message関数を使って送信する。</li>
+<li>crmdは pe_ipc_dispatchでpegineで計算した結果を受けとる。</li>
+<li>リソースの配置(？)は、その種類毎にクラスがあり、異なる方法で処理される。resource_class_alloc_functions</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ClusterIP_detach.html"
+                        title="previous chapter">18. Process of detaching/attaching ClusterIP in case of node/service failure</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cib-crmd.html"
+                        title="next chapter">20. cib - crmd</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pengine-crmd.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="cib-crmd.html" title="20. cib - crmd"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ClusterIP_detach.html" title="18. Process of detaching/attaching ClusterIP in case of node/service failure"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

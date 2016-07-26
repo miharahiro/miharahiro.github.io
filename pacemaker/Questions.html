@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>9. Questions &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" />
+    <link rel="next" title="10. References / links" href="refs.html" />
+    <link rel="prev" title="8. Crypt corosync/totem messaging" href="corosync_crypto.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="refs.html" title="10. References / links"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="corosync_crypto.html" title="8. Crypt corosync/totem messaging"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="questions">
+<h1>9. Questions<a class="headerlink" href="#questions" title="Permalink to this headline">¶</a></h1>
+<p>Q1. ウェブサーバのリソース設定をしてモニターすることで、httpdプロセス監視をし、問題がある場合にプロセス再起動などを実現できるのだが、例えばhttpdプロセスは上がっているが、外部から80番ポートのアクセスが禁止されている場合、アクセスしてくるクライアントから見てサービスが提供できない状況にもかかわらず、httpdプロセス監視上は問題無しとして何のアクションも取られないようだ。何か良い方法があるか？</p>
+<p>Q2. Virtual-IP addressとhttpdの二つのリソースが含まれるグループ(WEBSERVICE)を作成し、グループをcloneしてActive/Activeをする場合、負荷分散には寄与するが、どうやらsource-IPのハッシュ値等で振り分けをしているためか、あるクライアントからのアクセスは、常に同じhostに振り向けられる。その振り向け先ホストがdownした場合、該当クライアントへのサービスは提供できない状況が続き、改善されない。他のhostが稼働している場合、そのいずれかでサービスを提供するように動作してほしいところだが、そうはならない。Cloneの仕方でどうにかなるものなのか？</p>
+<p>A2. VIPとwebserverをグループにするのではなく、collocationで関連付けて、リソースそれぞれをcloneすることで、上記の問題は発生しない。Active/Passiveで複数のリソースを同一ホストで稼働させる方法として、同一グループに所属させる方法とcollocationを指定する方法の少なくとも2つがあることがわかった。それぞれに動作が異る場合があり、その意味について理解する必要がありそうだ。</p>
+<p>Q3. A2のcollocationで関連付けを行った場合、Active/Activeのあるホストがダウンしても、クライアントからのリクエストは上がっているいずれかのサーバに振り分けられサービスが提供される。ところが、ダウンしていたサーバを再度起動しても、webserverリソースは停止状態のままとなる。そこで別のホストを停止すると、先程再起動したホストのwebserverリソースが代わりに開始される。いずれにしろ、クラスターを構成しているホスト（4つ）が全て動作していても、上記の手順で一度webserverリソースの開始数が3つとなると、全てのホストでwebserverが起動した状況にはならないようだ。</p>
+<p>Q4. VRRP (Virtual Router Redundancy Protocol) seems a similar technology for realizing HA with Virtual IP. What&#8217;s the difference between VRRP and Pacemaker&#8217;s IP cloning?</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="corosync_crypto.html"
+                        title="previous chapter">8. Crypt corosync/totem messaging</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="refs.html"
+                        title="next chapter">10. References / links</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/Questions.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="refs.html" title="10. References / links"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="corosync_crypto.html" title="8. Crypt corosync/totem messaging"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

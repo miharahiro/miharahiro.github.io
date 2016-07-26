@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>12. ClusterIP / iptables mechanisms &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" />
+    <link rel="next" title="13. Clone resources / clone groups" href="group-clone.html" />
+    <link rel="prev" title="11. Calculations of high availability systems" href="HA-calc.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="group-clone.html" title="13. Clone resources / clone groups"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="HA-calc.html" title="11. Calculations of high availability systems"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="clusterip-iptables-mechanisms">
+<h1>12. ClusterIP / iptables mechanisms<a class="headerlink" href="#clusterip-iptables-mechanisms" title="Permalink to this headline">¶</a></h1>
+<p>In Active/Active mode, all the nodes in a cluster has the same IP address, namely the clusterIP, and the same MAC address. Requests to the clusterIP are forwarded to all nodes but the only one node replies to the requests. This behavior is achieved by the extension of iptables. Let&#8217;s look into source codes of iptables and kernel where this functionality is defined/implemented.</p>
+<p>Finding the files containing the key word, &#8220;CLUSTER&#8221; within the iptables source codes,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[mihara@wlan-197-60 iptables-1.4.21]$ pwd
+/run/media/mihara/disk/sources/i/iptables/^rhel-server-7-2-source-iso/pre-build/iptables-1.4.21
+
+[mihara@wlan-197-60 iptables-1.4.21]$ grep -lr CLUSTER *
+extensions/libipt_CLUSTERIP.c
+extensions/libxt_cluster.c
+include/linux/netfilter/xt_cluster.h
+include/linux/netfilter_ipv4/ipt_CLUSTERIP.h
+tests/options-ipv4.rules
+</pre></div>
+</div>
+<p>Looking into one of the file (include/linux/netfilter_ipv4/ipt_CLUSTERIP.h),</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">20</span><span class="n">struct</span> <span class="n">ipt_clusterip_tgt_info</span> <span class="p">{</span>
+<span class="mi">21</span>
+<span class="mi">22</span>        <span class="n">__u32</span> <span class="n">flags</span><span class="p">;</span>
+<span class="mi">23</span>
+<span class="mi">24</span>        <span class="o">/*</span> <span class="n">only</span> <span class="n">relevant</span> <span class="k">for</span> <span class="n">new</span> <span class="n">ones</span> <span class="o">*/</span>
+<span class="mi">25</span>        <span class="n">__u8</span> <span class="n">clustermac</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span>
+<span class="mi">26</span>        <span class="n">__u16</span> <span class="n">num_total_nodes</span><span class="p">;</span>
+<span class="mi">27</span>        <span class="n">__u16</span> <span class="n">num_local_nodes</span><span class="p">;</span>
+<span class="mi">28</span>        <span class="n">__u16</span> <span class="n">local_nodes</span><span class="p">[</span><span class="n">CLUSTERIP_MAX_NODES</span><span class="p">];</span>
+<span class="mi">29</span>        <span class="n">__u32</span> <span class="n">hash_mode</span><span class="p">;</span>
+<span class="mi">30</span>        <span class="n">__u32</span> <span class="n">hash_initval</span><span class="p">;</span>
+<span class="mi">31</span>
+<span class="mi">32</span>        <span class="o">/*</span> <span class="n">Used</span> <span class="n">internally</span> <span class="n">by</span> <span class="n">the</span> <span class="n">kernel</span> <span class="o">*/</span>
+<span class="mi">33</span>        <span class="n">struct</span> <span class="n">clusterip_config</span> <span class="o">*</span><span class="n">config</span><span class="p">;</span>
+<span class="mi">34</span><span class="p">};</span>
+</pre></div>
+</div>
+<p>Let&#8217;s find clusterip_config in kernel source coeds.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="n">Directory</span> <span class="o">/</span><span class="n">run</span><span class="o">/</span><span class="n">media</span><span class="o">/</span><span class="n">mihara</span><span class="o">/</span><span class="n">disk</span><span class="o">/</span><span class="n">sources</span><span class="o">/</span><span class="n">k</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="mf">3.10</span><span class="o">.</span><span class="mi">0</span><span class="o">-</span><span class="mf">327.3</span><span class="o">.</span><span class="mf">1.</span><span class="n">el7</span><span class="o">--</span><span class="n">srpm</span><span class="o">/</span><span class="n">pre</span><span class="o">-</span><span class="n">buil</span>\
+ <span class="n">d</span><span class="o">/</span><span class="n">kernel</span><span class="o">-</span><span class="mf">3.10</span><span class="o">.</span><span class="mi">0</span><span class="o">-</span><span class="mf">327.3</span><span class="o">.</span><span class="mf">1.</span><span class="n">el7</span><span class="o">/</span><span class="n">linux</span><span class="o">-</span><span class="mf">3.10</span><span class="o">.</span><span class="mi">0</span><span class="o">-</span><span class="mf">327.3</span><span class="o">.</span><span class="mf">1.</span><span class="n">el7</span><span class="o">.</span><span class="n">x86_64</span><span class="o">/</span>
+
+<span class="o">./</span><span class="n">net</span><span class="o">/</span><span class="n">ipv4</span><span class="o">/</span><span class="n">netfilter</span><span class="o">/</span><span class="n">ipt_CLUSTERIP</span><span class="o">.</span><span class="n">c</span><span class="p">:</span><span class="mi">280</span><span class="p">:</span><span class="n">clusterip_responsible</span><span class="p">(</span><span class="n">const</span> <span class="n">struct</span> <span class="n">cluste</span>\
+   <span class="n">rip_config</span> <span class="o">*</span><span class="n">config</span><span class="p">,</span> <span class="n">u_int32_t</span> <span class="nb">hash</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>clusterip_responsible in /net/ipv4/netfilter/ipt_CLUSTERIP.c:280 seems promising ...</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">280</span><span class="n">clusterip_responsible</span><span class="p">(</span><span class="n">const</span> <span class="n">struct</span> <span class="n">clusterip_config</span> <span class="o">*</span><span class="n">config</span><span class="p">,</span> <span class="n">u_int32_t</span> <span class="nb">hash</span><span class="p">)</span>
+<span class="mi">281</span><span class="p">{</span>
+<span class="mi">282</span>        <span class="k">return</span> <span class="n">test_bit</span><span class="p">(</span><span class="nb">hash</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">config</span><span class="o">-&gt;</span><span class="n">local_nodes</span><span class="p">);</span>
+<span class="mi">283</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The function clusterip_responsible is called in the same file within clusterip_tg function.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>290clusterip_tg(struct sk_buff *skb, const struct xt_action_param *par)
+291{
+.
+.
+.
+338        if (!clusterip_responsible(cipinfo-&gt;config, hash)) {
+339                pr_debug(&quot;not responsible\n&quot;);
+340                return NF_DROP;
+341        }
+342        pr_debug(&quot;responsible\n&quot;);
+343
+344        /* despite being received via linklayer multicast, this is
+345         * actually a unicast IP packet. TCP doesn&#39;t like PACKET_MULTICAST */
+346        skb-&gt;pkt_type = PACKET_HOST;
+347
+348        return XT_CONTINUE;
+</pre></div>
+</div>
+<p>It&#8217;s very likely that the function &#8220;clusterip_responsible&#8221; compares the hash value (probably calculated according to hash_mode) and the local_node&#8217;s ID and determines whether the node should respond or not.</p>
+<p>clusterip_tg is a member of the struct clusterip_tg_reg</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">440</span><span class="n">static</span> <span class="n">struct</span> <span class="n">xt_target</span> <span class="n">clusterip_tg_reg</span> <span class="n">__read_mostly</span> <span class="o">=</span> <span class="p">{</span>
+<span class="mi">441</span>        <span class="o">.</span><span class="n">name</span>           <span class="o">=</span> <span class="s2">&quot;CLUSTERIP&quot;</span><span class="p">,</span>
+<span class="mi">442</span>        <span class="o">.</span><span class="n">family</span>         <span class="o">=</span> <span class="n">NFPROTO_IPV4</span><span class="p">,</span>
+<span class="mi">443</span>        <span class="o">.</span><span class="n">target</span>         <span class="o">=</span> <span class="n">clusterip_tg</span><span class="p">,</span>
+<span class="mi">444</span>        <span class="o">.</span><span class="n">checkentry</span>     <span class="o">=</span> <span class="n">clusterip_tg_check</span><span class="p">,</span>
+<span class="mi">445</span>        <span class="o">.</span><span class="n">destroy</span>        <span class="o">=</span> <span class="n">clusterip_tg_destroy</span><span class="p">,</span>
+<span class="mi">446</span>        <span class="o">.</span><span class="n">targetsize</span>     <span class="o">=</span> <span class="n">sizeof</span><span class="p">(</span><span class="n">struct</span> <span class="n">ipt_clusterip_tgt_info</span><span class="p">),</span>
+<span class="mi">447</span><span class="c1">#ifdef CONFIG_COMPAT</span>
+<span class="mi">448</span>        <span class="o">.</span><span class="n">compatsize</span>     <span class="o">=</span> <span class="n">sizeof</span><span class="p">(</span><span class="n">struct</span> <span class="n">compat_ipt_clusterip_tgt_info</span><span class="p">),</span>
+<span class="mi">449</span><span class="c1">#endif /* CONFIG_COMPAT */</span>
+<span class="mi">450</span>        <span class="o">.</span><span class="n">me</span>             <span class="o">=</span> <span class="n">THIS_MODULE</span>
+<span class="mi">451</span><span class="p">};</span>
+</pre></div>
+</div>
+<p>clusterip_tg_reg is loaded by xt_register_target in  __init clusterip_tg_init(void)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>701static int __init clusterip_tg_init(void)
+702{
+703        int ret;
+704
+705        ret = xt_register_target(&amp;clusterip_tg_reg);
+706        if (ret &lt; 0)
+707                return ret;
+708
+709        ret = nf_register_hook(&amp;cip_arp_ops);
+710        if (ret &lt; 0)
+711                goto cleanup_target;
+712
+713#ifdef CONFIG_PROC_FS
+714        clusterip_procdir = proc_mkdir(&quot;ipt_CLUSTERIP&quot;, init_net.proc_net);
+715        if (!clusterip_procdir) {
+716                pr_err(&quot;Unable to proc dir entry\n&quot;);
+717                ret = -ENOMEM;
+718                goto cleanup_hook;
+719        }
+720#endif /* CONFIG_PROC_FS */
+721
+722        pr_info(&quot;ClusterIP Version %s loaded successfully\n&quot;,
+723                CLUSTERIP_VERSION);
+724        return 0;
+725
+726#ifdef CONFIG_PROC_FS
+727cleanup_hook:
+728        nf_unregister_hook(&amp;cip_arp_ops);
+729#endif /* CONFIG_PROC_FS */
+730cleanup_target:
+731        xt_unregister_target(&amp;clusterip_tg_reg);
+732        return ret;
+733}
+</pre></div>
+</div>
+<p>line#722 above, &#8220;ClusterIP Version %s loaded successfullyn&#8221; can be found in /var/log/messages of the cluster node like follows,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">May</span> <span class="mi">19</span> <span class="mi">10</span><span class="p">:</span><span class="mi">22</span><span class="p">:</span><span class="mi">24</span> <span class="n">a1</span> <span class="n">kernel</span><span class="p">:</span> <span class="n">ipt_CLUSTERIP</span><span class="p">:</span> <span class="n">ClusterIP</span> <span class="n">Version</span> <span class="mf">0.8</span> <span class="n">loaded</span> <span class="n">successfully</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="HA-calc.html"
+                        title="previous chapter">11. Calculations of high availability systems</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="group-clone.html"
+                        title="next chapter">13. Clone resources / clone groups</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ipt_clusterip.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="group-clone.html" title="13. Clone resources / clone groups"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="HA-calc.html" title="11. Calculations of high availability systems"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

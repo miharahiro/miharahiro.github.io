@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Pacemaker research memo &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pacemaker-research-memo">
+<h1>Pacemaker research memo<a class="headerlink" href="#pacemaker-research-memo" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pacemaker_setup.html">1. Pacemaker / fencing setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webui.html">2. PCSD Web UI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster-resource.html">3. Cluster Resources</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cluster-resource.html#what-is-a-cluster-resource">3.1. What is a Cluster Resource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cluster-resource.html#resource-behavior">3.2. Resource behavior</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="clustered_web.html">4. Setup clustered web servers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fence_test.html">5. Fencing test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fence_case_study.html">6. Fencing case studies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fence_case_study.html#block-high-availability-communications">6.1. Block high-availability communications</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="active_active_vip.html">7. Active/Active setup - VIP</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="active_active_vip.html#setup-procedures">7.1. Setup procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="active_active_vip.html#vip-mechanisms">7.2. VIP mechanisms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="corosync_crypto.html">8. Crypt corosync/totem messaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Questions.html">9. Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refs.html">10. References / links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="HA-calc.html">11. Calculations of high availability systems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="HA-calc.html#motivation">11.1. Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="HA-calc.html#availability-calculations">11.2. Availability Calculations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ipt_clusterip.html">12. ClusterIP / iptables mechanisms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="group-clone.html">13. Clone resources / clone groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pacemaker-inside.html">14. Pacemaker inside</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pacemaker-inside.html#architecture">14.1. Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pacemaker-inside.html#related-source-packages">14.2. Related source packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pacemaker-inside.html#related-processes">14.3. Related processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pacemaker-inside.html#connections-between-components-of-pacemaker">14.4. Connections between components of pacemaker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pacemaker-inside.html#functionality">14.5. Functionality</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="codewalk-addResource.html">15. Code Walk / Adding resources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codewalk-monitoringResource.html">16. Code-walk / Monitoring resources</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="codewalk-monitoringResource.html#recurring-logs-and-monitoring">16.1. Recurring logs and monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="codewalk-monitoringResource.html#detecting-failure-on-resources">16.2. Detecting failure on resources</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="words-jp.html">17. 用語説明</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="words-jp.html#cluster-concepts">17.1. Cluster Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="words-jp.html#type-of-cluster-ha">17.2. Type of cluster HA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="words-jp.html#pacemaker-specific">17.3. Pacemaker specific</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ClusterIP_detach.html">18. Process of detaching/attaching ClusterIP in case of node/service failure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pengine-crmd.html">19. Pengine - crmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cib-crmd.html">20. cib - crmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pacemaker-haproxy-setup.html">21. Active/Passive HA proxy using Pacemaker setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pacemaker-haproxy-setup.html#prerequisites">21.1. Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pacemaker-haproxy-setup.html#setup-procedures">21.2. Setup procedures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cib.html">22. CIB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mariadb-cluster.html">23. Setting up clustered MariaDB with Pacemaker</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mariadb-cluster.html#install-mariadb">23.1. Install MariaDB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mariadb-cluster.html#n-create-replication-user">23.2. [N] Create replication user</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mariadb-cluster.html#setup-cluster-resource">23.3. Setup cluster resource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mariadb-cluster.html#selinux">23.4. SELinux</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Pacemaker research memo</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index_en.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

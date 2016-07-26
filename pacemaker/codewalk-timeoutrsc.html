@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>&lt;no title&gt; &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <p>Log</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[mihara@wlan-197-60 data]$ cat corosync-fencea3_a3.log
+</pre></div>
+</div>
+<p>May 24 15:46:41 [29153] a3.pm.redhat.com       lrmd:  warning: child_timeout_callback:webserver_monitor_10000 process (PID 26685) timed out
+May 24 15:46:41 [29153] a3.pm.redhat.com       lrmd:  warning: operation_finished:webserver_monitor_10000:26685 - timed out after 20000ms
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:    error: process_lrm_event:Operation webserver_monitor_10000: Timed Out (node=a3, call=36, timeout=20000ms)
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_process_request:Forwarding cib_modify operation for section status to master (origin=local/crmd/72)
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:Diff: &#8212; 0.242.50 2
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:Diff: +++ 0.242.51 (null)
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:+  /cib:  &#64;num_updates=51
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:++ /cib/status/node_state[&#64;id=&#8216;3&#8217;]/lrm[&#64;id=&#8216;3&#8217;]/lrm_resources/lrm_resource[&#64;id=&#8217;webserver&#8217;]:  &lt;lrm_rsc_op id=&#8221;webserver_last_failure_0&#8221; operation_key=&#8221;webserver_monitor_10000&#8221; operation=&#8221;monitor&#8221; crm-debug-origin=&#8221;do_update_resource&#8221; crm_feature_set=&#8221;3.0.10&#8221; transition-key=&#8221;27:2:0:a459132e-e3b7-4093-91dc-e93cbe533358&#8221; transition-magic=&#8221;2:1;27:2:0:a459132e-e3b7-4093-91dc-e93cbe533358&#8221; on_node=&#8221;a3&#8221; call-id=&#8221;36&#8221; rc-code=&#8221;1&#8221; op-stat
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_process_request:Completed cib_modify operation for section status: OK (rc=0, origin=a3/crmd/72, version=0.242.51)
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:     info: abort_transition_graph:Transition aborted by webserver_monitor_10000 &#8216;create&#8217; on a3: Old event (magic=2:1;27:2:0:a459132e-e3b7-4093-91dc-e93cbe533358, cib=0.242.51, source=process_graph_event:593, 1)
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:     info: update_failcount:Updating failcount for webserver on a3 after failed monitor: rc=1 (update=value++, time=1464072401)
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:     info: process_graph_event:Detected action (2.27) webserver_monitor_10000.36=unknown error: failed
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:   notice: do_state_transition:State transition S_IDLE -&gt; S_POLICY_ENGINE [ input=I_PE_CALC cause=C_FSA_INTERNAL origin=abort_transition_graph ]
+May 24 15:46:41 [29154] a3.pm.redhat.com      attrd:     info: attrd_client_update:Expanded fail-count-webserver=value++ to 1
+May 24 15:46:41 [29154] a3.pm.redhat.com      attrd:     info: attrd_peer_update:Setting fail-count-webserver[a3]: (null) -&gt; 1 from a3
+May 24 15:46:41 [29154] a3.pm.redhat.com      attrd:     info: write_attribute:Sent update 9 with 1 changes for fail-count-webserver, id=&lt;n/a&gt;, set=(null)
+May 24 15:46:41 [29154] a3.pm.redhat.com      attrd:     info: attrd_peer_update:Setting last-failure-webserver[a3]: (null) -&gt; 1464072401 from a3
+May 24 15:46:41 [29154] a3.pm.redhat.com      attrd:     info: write_attribute:Sent update 10 with 1 changes for last-failure-webserver, id=&lt;n/a&gt;, set=(null)
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_process_request:Forwarding cib_modify operation for section status to master (origin=local/attrd/9)
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_process_request:Forwarding cib_modify operation for section status to master (origin=local/attrd/10)
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:Diff: &#8212; 0.242.51 2
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:Diff: +++ 0.242.52 (null)
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:+  /cib:  &#64;num_updates=52
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:++ /cib/status/node_state[&#64;id=&#8216;3&#8217;]/transient_attributes[&#64;id=&#8216;3&#8217;]/instance_attributes[&#64;id=&#8217;status-3&#8217;]:  &lt;nvpair id=&#8221;status-3-fail-count-webserver&#8221; name=&#8221;fail-count-webserver&#8221; value=&#8221;1&#8221;/&gt;
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_process_request:Completed cib_modify operation for section status: OK (rc=0, origin=a3/attrd/9, version=0.242.52)
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:Diff: &#8212; 0.242.52 2
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:Diff: +++ 0.242.53 (null)
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:+  /cib:  &#64;num_updates=53
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_perform_op:++ /cib/status/node_state[&#64;id=&#8216;3&#8217;]/transient_attributes[&#64;id=&#8216;3&#8217;]/instance_attributes[&#64;id=&#8217;status-3&#8217;]:  &lt;nvpair id=&#8221;status-3-last-failure-webserver&#8221; name=&#8221;last-failure-webserver&#8221; value=&#8221;1464072401&#8221;/&gt;
+May 24 15:46:41 [29154] a3.pm.redhat.com      attrd:     info: attrd_cib_callback:Update 9 for fail-count-webserver: OK (0)
+May 24 15:46:41 [29154] a3.pm.redhat.com      attrd:     info: attrd_cib_callback:Update 9 for fail-count-webserver[a3]=1: OK (0)
+May 24 15:46:41 [29151] a3.pm.redhat.com        cib:     info: cib_process_request:Completed cib_modify operation for section status: OK (rc=0, origin=a3/attrd/10, version=0.242.53)
+May 24 15:46:41 [29154] a3.pm.redhat.com      attrd:     info: attrd_cib_callback:Update 10 for last-failure-webserver: OK (0)
+May 24 15:46:41 [29154] a3.pm.redhat.com      attrd:     info: attrd_cib_callback:Update 10 for last-failure-webserver[a3]=1464072401: OK (0)
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:     info: abort_transition_graph:Transition aborted by status-3-fail-count-webserver, fail-count-webserver=1: Transient attribute change (create cib=0.242.52, source=abort_unless_down:319, path=/cib/status/node_state[&#64;id=&#8216;3&#8217;]/transient_attributes[&#64;id=&#8216;3&#8217;]/instance_attributes[&#64;id=&#8217;status-3&#8217;], 1)
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:     info: abort_transition_graph:Transition aborted by status-3-last-failure-webserver, last-failure-webserver=1464072401: Transient attribute change (create cib=0.242.53, source=abort_unless_down:319, path=/cib/status/node_state[&#64;id=&#8216;3&#8217;]/transient_attributes[&#64;id=&#8216;3&#8217;]/instance_attributes[&#64;id=&#8217;status-3&#8217;], 1)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status_fencing:Node a2 is active
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status:Node a2 is online
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status_fencing:Node a3 is active
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status:Node a3 is online
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status_fencing:Node a1 is active
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status:Node a1 is online
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:  warning: unpack_rsc_op_failure:Processing failed op monitor for webserver:1 on a3: unknown error (1)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:node1-xvm(stonith:fence_xvm):Started a1
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:node2-xvm(stonith:fence_xvm):Started a2
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:node3-xvm(stonith:fence_xvm):Started a3
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: clone_print: Clone Set: ClusterIP-clone [ClusterIP] (unique)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:     ClusterIP:0(ocf::heartbeat:IPaddr2):Started a1
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:     ClusterIP:1(ocf::heartbeat:IPaddr2):Started a2
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:     ClusterIP:2(ocf::heartbeat:IPaddr2):Started a3
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: clone_print: Clone Set: webserver-clone [webserver]
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:     webserver(ocf::heartbeat:apache):FAILED a3
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: short_print:     Started: [ a1 a2 ]
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: RecurringOp: Start recurring monitor (10s) for webserver:1 on a3
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   node1-xvm(Started a1)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   node2-xvm(Started a2)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   node3-xvm(Started a3)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   ClusterIP:0(Started a1)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   ClusterIP:1(Started a2)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   ClusterIP:2(Started a3)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   webserver:0(Started a2)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:   notice: LogActions:Recover webserver:1(Started a3)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   webserver:2(Started a1)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:   notice: process_pe_message:Calculated Transition 20: /var/lib/pacemaker/pengine/pe-input-238.bz2
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:     info: handle_response:pe_calc calculation pe_calc-dc-1464072401-80 is obsolete
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status_fencing:Node a2 is active
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status:Node a2 is online
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status_fencing:Node a3 is active
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status:Node a3 is online
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status_fencing:Node a1 is active
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: determine_online_status:Node a1 is online
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:  warning: unpack_rsc_op_failure:Processing failed op monitor for webserver:1 on a3: unknown error (1)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:node1-xvm(stonith:fence_xvm):Started a1
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:node2-xvm(stonith:fence_xvm):Started a2
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:node3-xvm(stonith:fence_xvm):Started a3
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: clone_print: Clone Set: ClusterIP-clone [ClusterIP] (unique)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:     ClusterIP:0(ocf::heartbeat:IPaddr2):Started a1
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:     ClusterIP:1(ocf::heartbeat:IPaddr2):Started a2
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:     ClusterIP:2(ocf::heartbeat:IPaddr2):Started a3
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: clone_print: Clone Set: webserver-clone [webserver]
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: native_print:     webserver(ocf::heartbeat:apache):FAILED a3
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: short_print:     Started: [ a1 a2 ]
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: get_failcount_full:webserver:0 has failed 1 times on a3
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: common_apply_stickiness:webserver-clone can fail 999999 more times on a3 before being forced off
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: get_failcount_full:webserver:1 has failed 1 times on a3
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: common_apply_stickiness:webserver-clone can fail 999999 more times on a3 before being forced off
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: get_failcount_full:webserver:2 has failed 1 times on a3
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: common_apply_stickiness:webserver-clone can fail 999999 more times on a3 before being forced off
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: RecurringOp: Start recurring monitor (10s) for webserver:1 on a3
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   node1-xvm(Started a1)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   node2-xvm(Started a2)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   node3-xvm(Started a3)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   ClusterIP:0(Started a1)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   ClusterIP:1(Started a2)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   ClusterIP:2(Started a3)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   webserver:0(Started a2)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:   notice: LogActions:Recover webserver:1(Started a3)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:     info: LogActions:Leave   webserver:2(Started a1)
+May 24 15:46:41 [29155] a3.pm.redhat.com    pengine:   notice: process_pe_message:Calculated Transition 21: /var/lib/pacemaker/pengine/pe-input-239.bz2
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:     info: do_state_transition:State transition S_POLICY_ENGINE -&gt; S_TRANSITION_ENGINE [ input=I_PE_SUCCESS cause=C_IPC_MESSAGE origin=handle_response ]
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:     info: do_te_invoke:Processing graph 21 (ref=pe_calc-dc-1464072401-81) derived from /var/lib/pacemaker/pengine/pe-input-239.bz2
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:   notice: te_rsc_command:Initiating action 7: stop webserver_stop_0 on a3 (local)
+May 24 15:46:41 [29153] a3.pm.redhat.com       lrmd:     info: cancel_recurring_action:Cancelling ocf operation webserver_monitor_10000
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:     info: do_lrm_rsc_op:Performing key=7:21:0:a459132e-e3b7-4093-91dc-e93cbe533358 op=webserver_stop_0
+May 24 15:46:41 [29153] a3.pm.redhat.com       lrmd:     info: log_execute:executing - rsc:webserver action:stop call_id:38
+May 24 15:46:41 [29156] a3.pm.redhat.com       crmd:     info: process_lrm_event:Operation webserver_monitor_10000: Cancelled (node=a3, call=36, confirmed=true)
+apache(webserver)[26790]:2016/05/24_15:46:41 INFO: Attempting graceful stop of apache PID 29588
+May 24 15:46:46 [29151] a3.pm.redhat.com        cib:     info: cib_process_ping:Reporting our current digest to a3: 545aa3f1cfa04d8cfcce59dadc291c92 for 0.242.53 (0x221d4f0 0)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>lib/services/services_linux.c
+690        mainloop_child_add_with_flags(op-&gt;pid,
+691                                      op-&gt;timeout,
+692                                      op-&gt;id,
+693                                      op,
+694                                      (op-&gt;flags &amp; SVC_ACTION_LEAVE_GROUP) ? mainloop_leave_pid_group : 0,
+695                                      operation_finished);
+
+
+lib/common/mainloop.c:1093: mainloop_child_add_with_flags(pid_t pid, int timeout, const char *desc, void *privatedata, enum mainloop_child_flags flags,
+
+1110    if (timeout) {
+1111        child-&gt;timerid = g_timeout_add(timeout, child_timeout_callback, child);
+1112    }
+</pre></div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/codewalk-timeoutrsc.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+=======================================
+Constraints on resources
+=======================================
+
+Score
+--------------------------------------
+Definition of Infinity
+::
+   
+   ./include/crm/crm.h:77:#  define INFINITY        1000000

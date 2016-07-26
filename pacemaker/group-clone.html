@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>13. Clone resources / clone groups &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" />
+    <link rel="next" title="14. Pacemaker inside" href="pacemaker-inside.html" />
+    <link rel="prev" title="12. ClusterIP / iptables mechanisms" href="ipt_clusterip.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pacemaker-inside.html" title="14. Pacemaker inside"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ipt_clusterip.html" title="12. ClusterIP / iptables mechanisms"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="clone-resources-clone-groups">
+<h1>13. Clone resources / clone groups<a class="headerlink" href="#clone-resources-clone-groups" title="Permalink to this headline">¶</a></h1>
+<p>Tips of cloning groups to realize Active/Active cluster.
+As an initial phase, webserver and ClusterIP resources are defined and running on different nodes.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs status</span>
+<span class="n">Cluster</span> <span class="n">name</span><span class="p">:</span> <span class="n">test_cluster</span>
+<span class="n">Last</span> <span class="n">updated</span><span class="p">:</span> <span class="n">Thu</span> <span class="n">May</span> <span class="mi">19</span> <span class="mi">18</span><span class="p">:</span><span class="mi">29</span><span class="p">:</span><span class="mi">23</span> <span class="mi">2016</span><span class="n">Last</span> <span class="n">change</span><span class="p">:</span> <span class="n">Thu</span> <span class="n">May</span> <span class="mi">19</span> <span class="mi">18</span><span class="p">:</span><span class="mi">27</span><span class="p">:</span><span class="mi">17</span> <span class="mi">2016</span> <span class="n">by</span> <span class="n">root</span> <span class="n">via</span> <span class="n">cibadmin</span> <span class="n">on</span> <span class="n">a1</span>
+<span class="n">Stack</span><span class="p">:</span> <span class="n">corosync</span>
+<span class="n">Current</span> <span class="n">DC</span><span class="p">:</span> <span class="n">a1</span> <span class="p">(</span><span class="n">version</span> <span class="mf">1.1</span><span class="o">.</span><span class="mi">13</span><span class="o">-</span><span class="mf">10.</span><span class="n">el7_2</span><span class="o">.</span><span class="mi">2</span><span class="o">-</span><span class="mi">44</span><span class="n">eb2dd</span><span class="p">)</span> <span class="o">-</span> <span class="n">partition</span> <span class="k">with</span> <span class="n">quorum</span>
+<span class="mi">3</span> <span class="n">nodes</span> <span class="ow">and</span> <span class="mi">5</span> <span class="n">resources</span> <span class="n">configured</span>
+
+<span class="n">Online</span><span class="p">:</span> <span class="p">[</span> <span class="n">a1</span> <span class="n">a2</span> <span class="n">a3</span> <span class="p">]</span>
+
+<span class="n">Full</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">resources</span><span class="p">:</span>
+
+<span class="n">node1</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a1</span>
+<span class="n">node2</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+<span class="n">node3</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a3</span>
+<span class="n">webserver</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span><span class="n">Started</span> <span class="n">a1</span>
+<span class="n">ClusterIP</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+
+<span class="n">PCSD</span> <span class="n">Status</span><span class="p">:</span>
+<span class="n">a1</span><span class="p">:</span> <span class="n">Online</span>
+<span class="n">a2</span><span class="p">:</span> <span class="n">Online</span>
+<span class="n">a3</span><span class="p">:</span> <span class="n">Online</span>
+
+<span class="n">Daemon</span> <span class="n">Status</span><span class="p">:</span>
+<span class="n">corosync</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">enabled</span>
+<span class="n">pacemaker</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">enabled</span>
+<span class="n">pcsd</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">enabled</span>
+</pre></div>
+</div>
+<p>After grouping ClusterIP and webserver, both resources run on the same node.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource group add WEBSERVICE ClusterIP webserver</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@a1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs status</span>
+<span class="n">Cluster</span> <span class="n">name</span><span class="p">:</span> <span class="n">test_cluster</span>
+<span class="n">Last</span> <span class="n">updated</span><span class="p">:</span> <span class="n">Thu</span> <span class="n">May</span> <span class="mi">19</span> <span class="mi">18</span><span class="p">:</span><span class="mi">30</span><span class="p">:</span><span class="mi">45</span> <span class="mi">2016</span><span class="n">Last</span> <span class="n">change</span><span class="p">:</span> <span class="n">Thu</span> <span class="n">May</span> <span class="mi">19</span> <span class="mi">18</span><span class="p">:</span><span class="mi">30</span><span class="p">:</span><span class="mi">40</span> <span class="mi">2016</span> <span class="n">by</span> <span class="n">root</span> <span class="n">via</span> <span class="n">cibadmin</span> <span class="n">on</span> <span class="n">a1</span>
+<span class="n">Stack</span><span class="p">:</span> <span class="n">corosync</span>
+<span class="n">Current</span> <span class="n">DC</span><span class="p">:</span> <span class="n">a1</span> <span class="p">(</span><span class="n">version</span> <span class="mf">1.1</span><span class="o">.</span><span class="mi">13</span><span class="o">-</span><span class="mf">10.</span><span class="n">el7_2</span><span class="o">.</span><span class="mi">2</span><span class="o">-</span><span class="mi">44</span><span class="n">eb2dd</span><span class="p">)</span> <span class="o">-</span> <span class="n">partition</span> <span class="k">with</span> <span class="n">quorum</span>
+<span class="mi">3</span> <span class="n">nodes</span> <span class="ow">and</span> <span class="mi">5</span> <span class="n">resources</span> <span class="n">configured</span>
+
+<span class="n">Online</span><span class="p">:</span> <span class="p">[</span> <span class="n">a1</span> <span class="n">a2</span> <span class="n">a3</span> <span class="p">]</span>
+
+<span class="n">Full</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">resources</span><span class="p">:</span>
+
+<span class="n">node1</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a1</span>
+<span class="n">node2</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+<span class="n">node3</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a3</span>
+<span class="n">Resource</span> <span class="n">Group</span><span class="p">:</span> <span class="n">WEBSERVICE</span>
+<span class="n">ClusterIP</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+<span class="n">webserver</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+</pre></div>
+</div>
+<p>Then clone the group (WEBSERVICE).</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs cluster cib lb-group_cfg</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@a1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs -f lb-group_cfg resource clone WEBSERVICE clone-max=3 clone-node-max=2 globally-unique=true</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@a1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs cluster cib-push lb-group_cfg</span>
+<span class="n">CIB</span> <span class="n">updated</span>
+</pre></div>
+</div>
+<p>As the default value of clone-node-max is 1, it has to be explicitly defined as 2 or greater value for allocating 2 or more ClusterIP in case of nodes failure. After cloning the group,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a3</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs status</span>
+<span class="n">Cluster</span> <span class="n">name</span><span class="p">:</span> <span class="n">test_cluster</span>
+<span class="n">Last</span> <span class="n">updated</span><span class="p">:</span> <span class="n">Fri</span> <span class="n">May</span> <span class="mi">20</span> <span class="mi">10</span><span class="p">:</span><span class="mi">04</span><span class="p">:</span><span class="mi">43</span> <span class="mi">2016</span><span class="n">Last</span> <span class="n">change</span><span class="p">:</span> <span class="n">Fri</span> <span class="n">May</span> <span class="mi">20</span> <span class="mi">09</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">34</span> <span class="mi">2016</span> <span class="n">by</span> <span class="n">root</span> <span class="n">via</span> <span class="n">cibadmin</span> <span class="n">on</span> <span class="n">a1</span>
+<span class="n">Stack</span><span class="p">:</span> <span class="n">corosync</span>
+<span class="n">Current</span> <span class="n">DC</span><span class="p">:</span> <span class="n">a1</span> <span class="p">(</span><span class="n">version</span> <span class="mf">1.1</span><span class="o">.</span><span class="mi">13</span><span class="o">-</span><span class="mf">10.</span><span class="n">el7_2</span><span class="o">.</span><span class="mi">2</span><span class="o">-</span><span class="mi">44</span><span class="n">eb2dd</span><span class="p">)</span> <span class="o">-</span> <span class="n">partition</span> <span class="k">with</span> <span class="n">quorum</span>
+<span class="mi">3</span> <span class="n">nodes</span> <span class="ow">and</span> <span class="mi">9</span> <span class="n">resources</span> <span class="n">configured</span>
+
+<span class="n">Online</span><span class="p">:</span> <span class="p">[</span> <span class="n">a1</span> <span class="n">a2</span> <span class="n">a3</span> <span class="p">]</span>
+
+<span class="n">Full</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">resources</span><span class="p">:</span>
+
+<span class="n">node1</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a1</span>
+<span class="n">node2</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+<span class="n">node3</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a3</span>
+<span class="n">Clone</span> <span class="n">Set</span><span class="p">:</span> <span class="n">WEBSERVICE</span><span class="o">-</span><span class="n">clone</span> <span class="p">[</span><span class="n">WEBSERVICE</span><span class="p">]</span> <span class="p">(</span><span class="n">unique</span><span class="p">)</span>
+<span class="n">Resource</span> <span class="n">Group</span><span class="p">:</span> <span class="n">WEBSERVICE</span><span class="p">:</span><span class="mi">0</span>
+   <span class="n">ClusterIP</span><span class="p">:</span><span class="mi">0</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span><span class="n">Started</span> <span class="n">a1</span>
+   <span class="n">webserver</span><span class="p">:</span><span class="mi">0</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span><span class="n">Started</span> <span class="n">a1</span>
+<span class="n">Resource</span> <span class="n">Group</span><span class="p">:</span> <span class="n">WEBSERVICE</span><span class="p">:</span><span class="mi">1</span>
+  <span class="n">ClusterIP</span><span class="p">:</span><span class="mi">1</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+  <span class="n">webserver</span><span class="p">:</span><span class="mi">1</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+<span class="n">Resource</span> <span class="n">Group</span><span class="p">:</span> <span class="n">WEBSERVICE</span><span class="p">:</span><span class="mi">2</span>
+  <span class="n">ClusterIP</span><span class="p">:</span><span class="mi">2</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span><span class="n">Started</span> <span class="n">a3</span>
+  <span class="n">webserver</span><span class="p">:</span><span class="mi">2</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span><span class="n">Started</span> <span class="n">a3</span>
+
+<span class="n">PCSD</span> <span class="n">Status</span><span class="p">:</span>
+  <span class="n">a1</span><span class="p">:</span> <span class="n">Online</span>
+  <span class="n">a2</span><span class="p">:</span> <span class="n">Online</span>
+  <span class="n">a3</span><span class="p">:</span> <span class="n">Online</span>
+
+<span class="n">Daemon</span> <span class="n">Status</span><span class="p">:</span>
+  <span class="n">corosync</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">disabled</span>
+  <span class="n">pacemaker</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">disabled</span>
+  <span class="n">pcsd</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">enabled</span>
+</pre></div>
+</div>
+<p>Then stop(suspend) httpd processes on node a3</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a3</span> <span class="o">~</span><span class="p">]</span><span class="c1"># killall -STOP httpd</span>
+</pre></div>
+</div>
+<p>After a while, node a3 was fenced. The cluster status was as follows,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs status</span>
+<span class="n">Cluster</span> <span class="n">name</span><span class="p">:</span> <span class="n">test_cluster</span>
+<span class="n">Last</span> <span class="n">updated</span><span class="p">:</span> <span class="n">Fri</span> <span class="n">May</span> <span class="mi">20</span> <span class="mi">10</span><span class="p">:</span><span class="mi">59</span><span class="p">:</span><span class="mi">25</span> <span class="mi">2016</span><span class="n">Last</span> <span class="n">change</span><span class="p">:</span> <span class="n">Fri</span> <span class="n">May</span> <span class="mi">20</span> <span class="mi">10</span><span class="p">:</span><span class="mi">31</span><span class="p">:</span><span class="mi">28</span> <span class="mi">2016</span> <span class="n">by</span> <span class="n">root</span> <span class="n">via</span> <span class="n">cibadmin</span> <span class="n">on</span> <span class="n">a1</span>
+<span class="n">Stack</span><span class="p">:</span> <span class="n">corosync</span>
+<span class="n">Current</span> <span class="n">DC</span><span class="p">:</span> <span class="n">a2</span> <span class="p">(</span><span class="n">version</span> <span class="mf">1.1</span><span class="o">.</span><span class="mi">13</span><span class="o">-</span><span class="mf">10.</span><span class="n">el7_2</span><span class="o">.</span><span class="mi">2</span><span class="o">-</span><span class="mi">44</span><span class="n">eb2dd</span><span class="p">)</span> <span class="o">-</span> <span class="n">partition</span> <span class="k">with</span> <span class="n">quorum</span>
+<span class="mi">3</span> <span class="n">nodes</span> <span class="ow">and</span> <span class="mi">9</span> <span class="n">resources</span> <span class="n">configured</span>
+
+<span class="n">Online</span><span class="p">:</span> <span class="p">[</span> <span class="n">a1</span> <span class="n">a2</span> <span class="p">]</span>
+<span class="n">OFFLINE</span><span class="p">:</span> <span class="p">[</span> <span class="n">a3</span> <span class="p">]</span>
+
+<span class="n">Full</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">resources</span><span class="p">:</span>
+
+<span class="n">node1</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a1</span>
+<span class="n">node2</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+<span class="n">node3</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a1</span>
+<span class="n">Clone</span> <span class="n">Set</span><span class="p">:</span> <span class="n">WEBSERVICE</span><span class="o">-</span><span class="n">clone</span> <span class="p">[</span><span class="n">WEBSERVICE</span><span class="p">]</span> <span class="p">(</span><span class="n">unique</span><span class="p">)</span>
+<span class="n">Resource</span> <span class="n">Group</span><span class="p">:</span> <span class="n">WEBSERVICE</span><span class="p">:</span><span class="mi">0</span>
+<span class="n">ClusterIP</span><span class="p">:</span><span class="mi">0</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span><span class="n">Started</span> <span class="n">a1</span>
+<span class="n">webserver</span><span class="p">:</span><span class="mi">0</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span><span class="n">Started</span> <span class="n">a1</span>
+<span class="n">Resource</span> <span class="n">Group</span><span class="p">:</span> <span class="n">WEBSERVICE</span><span class="p">:</span><span class="mi">1</span>
+<span class="n">ClusterIP</span><span class="p">:</span><span class="mi">1</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+<span class="n">webserver</span><span class="p">:</span><span class="mi">1</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+<span class="n">Resource</span> <span class="n">Group</span><span class="p">:</span> <span class="n">WEBSERVICE</span><span class="p">:</span><span class="mi">2</span>
+<span class="n">ClusterIP</span><span class="p">:</span><span class="mi">2</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+<span class="n">webserver</span><span class="p">:</span><span class="mi">2</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span><span class="n">Started</span> <span class="n">a2</span>
+
+<span class="n">PCSD</span> <span class="n">Status</span><span class="p">:</span>
+<span class="n">a1</span><span class="p">:</span> <span class="n">Online</span>
+<span class="n">a2</span><span class="p">:</span> <span class="n">Online</span>
+<span class="n">a3</span><span class="p">:</span> <span class="n">Online</span>
+
+<span class="n">Daemon</span> <span class="n">Status</span><span class="p">:</span>
+<span class="n">corosync</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">enabled</span>
+<span class="n">pacemaker</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">enabled</span>
+<span class="n">pcsd</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">enabled</span>
+</pre></div>
+</div>
+<p>Resource Group: WEBSERVICE:2 is now running on node a2 (it was on node a3 before a3 being fenced.)
+http request from host computer was redirected to a3, which is now redirected to a2.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[mihara@wlan-197-60 ~]$ curl http://192.168.110.120
+&lt;html&gt;&lt;body&gt;&lt;h1&gt;a2&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ipt_clusterip.html"
+                        title="previous chapter">12. ClusterIP / iptables mechanisms</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pacemaker-inside.html"
+                        title="next chapter">14. Pacemaker inside</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/group-clone.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="pacemaker-inside.html" title="14. Pacemaker inside"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ipt_clusterip.html" title="12. ClusterIP / iptables mechanisms"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

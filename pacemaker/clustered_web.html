@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4. Setup clustered web servers &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" />
+    <link rel="next" title="5. Fencing test" href="fence_test.html" />
+    <link rel="prev" title="3. Cluster Resources" href="cluster-resource.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="fence_test.html" title="5. Fencing test"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cluster-resource.html" title="3. Cluster Resources"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="setup-clustered-web-servers">
+<h1>4. Setup clustered web servers<a class="headerlink" href="#setup-clustered-web-servers" title="Permalink to this headline">¶</a></h1>
+<ul>
+<li><p class="first">Prerequisites</p>
+<ul class="simple">
+<li>httpd is installed on every host in the cluster</li>
+<li>http port (=80) is reachable (not blocked)</li>
+<li>httpd is &#8220;not&#8221; running.</li>
+</ul>
+</li>
+<li><p class="first">See <a class="reference internal" href="cluster-resource.html"><span class="doc">Cluster Resources</span></a> for what is resource and how they are implemented.</p>
+</li>
+<li><p class="first">Create VirtualIP resource</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a4</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource create VIP IPaddr2 ip=192.168.110.120 cidr_netmask=24 op  monitor interval=30s</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@a4</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource show</span>
+<span class="n">VIP</span> <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span>       <span class="n">Started</span> <span class="n">a2</span>
+</pre></div>
+</div>
+<p>Then, at host a2 you can find the Virtual IP (192.168.110.120) on eth0:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># ip addr show eth0</span>
+<span class="mi">2</span><span class="p">:</span> <span class="n">eth0</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">BROADCAST</span><span class="p">,</span><span class="n">MULTICAST</span><span class="p">,</span><span class="n">UP</span><span class="p">,</span><span class="n">LOWER_UP</span><span class="o">&gt;</span> <span class="n">mtu</span> <span class="mi">1500</span> <span class="n">qdisc</span> <span class="n">pfifo_fast</span> <span class="n">state</span> <span class="n">UP</span> <span class="n">qlen</span> <span class="mi">1000</span>
+<span class="n">link</span><span class="o">/</span><span class="n">ether</span> <span class="mi">52</span><span class="p">:</span><span class="mi">54</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">04</span><span class="p">:</span><span class="mi">22</span> <span class="n">brd</span> <span class="n">ff</span><span class="p">:</span><span class="n">ff</span><span class="p">:</span><span class="n">ff</span><span class="p">:</span><span class="n">ff</span><span class="p">:</span><span class="n">ff</span><span class="p">:</span><span class="n">ff</span>
+<span class="n">inet</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">110.122</span><span class="o">/</span><span class="mi">24</span> <span class="n">brd</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">110.255</span> <span class="n">scope</span> <span class="k">global</span> <span class="n">dynamic</span> <span class="n">eth0</span>
+   <span class="n">valid_lft</span> <span class="mi">2785</span><span class="n">sec</span> <span class="n">preferred_lft</span> <span class="mi">2785</span><span class="n">sec</span>
+<span class="n">inet</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">110.120</span><span class="o">/</span><span class="mi">24</span> <span class="n">brd</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">110.255</span> <span class="n">scope</span> <span class="k">global</span> <span class="n">secondary</span> <span class="n">eth0</span>
+   <span class="n">valid_lft</span> <span class="n">forever</span> <span class="n">preferred_lft</span> <span class="n">forever</span>
+<span class="n">inet6</span> <span class="n">fe80</span><span class="p">::</span><span class="mi">5054</span><span class="p">:</span><span class="n">ff</span><span class="p">:</span><span class="n">fe00</span><span class="p">:</span><span class="mi">422</span><span class="o">/</span><span class="mi">64</span> <span class="n">scope</span> <span class="n">link</span>
+   <span class="n">valid_lft</span> <span class="n">forever</span> <span class="n">preferred_lft</span> <span class="n">forever</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create Web server resource</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a4</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource create webserver apache statusurl=&quot;http://localhost&quot;</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@a4</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource</span>
+<span class="n">VIP</span>  <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span>       <span class="n">Started</span> <span class="n">a2</span>
+<span class="n">webserver</span>    <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span>        <span class="n">Started</span> <span class="n">a4</span>
+</pre></div>
+</div>
+<p>In above case, virtual-IP and web-server are effective on different hosts, which causes problem in http access through virtual-IP. To resolve such cases, resource grouping is utilized.</p>
+</li>
+<li><p class="first">Resource grouping</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a4</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource group add WEBSERVICE webserver VIP</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@a4</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource</span>
+ <span class="n">Resource</span> <span class="n">Group</span><span class="p">:</span> <span class="n">WEBSERVICE</span>
+ <span class="n">webserver</span>  <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span>        <span class="n">Started</span> <span class="n">a4</span>
+ <span class="n">VIP</span>        <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span>       <span class="n">Started</span> <span class="n">a4</span>
+</pre></div>
+</div>
+<p>After creating the group with resources, both VIP and webserver resources are effective on the same host. Resources in the same group start sequentially and stop in the reverse order.</p>
+</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cluster-resource.html"
+                        title="previous chapter">3. Cluster Resources</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="fence_test.html"
+                        title="next chapter">5. Fencing test</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/clustered_web.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="fence_test.html" title="5. Fencing test"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cluster-resource.html" title="3. Cluster Resources"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

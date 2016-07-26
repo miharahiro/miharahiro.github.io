@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>7. Active/Active setup - VIP &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" />
+    <link rel="next" title="8. Crypt corosync/totem messaging" href="corosync_crypto.html" />
+    <link rel="prev" title="6. Fencing case studies" href="fence_case_study.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="corosync_crypto.html" title="8. Crypt corosync/totem messaging"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="fence_case_study.html" title="6. Fencing case studies"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="active-active-setup-vip">
+<h1>7. Active/Active setup - VIP<a class="headerlink" href="#active-active-setup-vip" title="Permalink to this headline">¶</a></h1>
+<p>Reference :</p>
+<p><a class="reference external" href="http://clusterlabs.org/doc/en-US/Pacemaker/1.1/html/Clusters_from_Scratch/_clone_the_ip_address.html">http://clusterlabs.org/doc/en-US/Pacemaker/1.1/html/Clusters_from_Scratch/_clone_the_ip_address.html</a></p>
+<div class="section" id="setup-procedures">
+<h2>7.1. Setup procedures<a class="headerlink" href="#setup-procedures" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">After adding VIP and webserver resouces, they are running on different hosts.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource</span>
+<span class="n">VIP</span> <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span>       <span class="n">Started</span> <span class="n">a1</span>
+<span class="n">webserver</span>   <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span>        <span class="n">Started</span> <span class="n">a3</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Collocate VIP and webserver resources to make them run on the same host</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs constraint colocation add webserver with VIP INFINITY</span>
+</pre></div>
+</div>
+<p>Then they are running on the same host</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource</span>
+<span class="n">VIP</span> <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span>       <span class="n">Started</span> <span class="n">a1</span>
+<span class="n">webserver</span>   <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">apache</span><span class="p">):</span>        <span class="n">Started</span> <span class="n">a1</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">If both services need specific order in starting services,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs constraint order VIP then webserver</span>
+<span class="n">Adding</span> <span class="n">VIP</span> <span class="n">webserver</span> <span class="p">(</span><span class="n">kind</span><span class="p">:</span> <span class="n">Mandatory</span><span class="p">)</span> <span class="p">(</span><span class="n">Options</span><span class="p">:</span> <span class="n">first</span><span class="o">-</span><span class="n">action</span><span class="o">=</span><span class="n">start</span> <span class="n">then</span><span class="o">-</span><span class="n">action</span><span class="o">=</span><span class="n">start</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Clone VIP</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs cluster cib loadbalance_cfg</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs -f loadbalance_cfg resource clone VIP clone-max=4 clone-node-max=4 globally-unique=true</span>
+
+<span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs -f loadbalance_cfg resource update VIP clusterip_hash=sourceip</span>
+
+<span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs cluster cib-push loadbalance_cfg</span>
+<span class="n">CIB</span> <span class="n">updated</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Clone webserver</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs cluster cib active_cfg</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs -f active_cfg resource clone webserver</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs -f active_cfg constraint</span>
+<span class="n">Location</span> <span class="n">Constraints</span><span class="p">:</span>
+<span class="n">Ordering</span> <span class="n">Constraints</span><span class="p">:</span>
+<span class="n">Colocation</span> <span class="n">Constraints</span><span class="p">:</span>
+<span class="n">webserver</span><span class="o">-</span><span class="n">clone</span> <span class="k">with</span> <span class="n">VIP</span><span class="o">-</span><span class="n">clone</span> <span class="p">(</span><span class="n">score</span><span class="p">:</span><span class="n">INFINITY</span><span class="p">)</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs cluster cib-push active_cfg</span>
+<span class="n">CIB</span> <span class="n">updated</span><span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs cluster cib-push active_cfg</span>
+<span class="n">CIB</span> <span class="n">updated</span>
+</pre></div>
+</div>
+<p>Then both VIP and webserver are effective on all the hosts</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource</span>
+<span class="n">Clone</span> <span class="n">Set</span><span class="p">:</span> <span class="n">VIP</span><span class="o">-</span><span class="n">clone</span> <span class="p">[</span><span class="n">VIP</span><span class="p">]</span> <span class="p">(</span><span class="n">unique</span><span class="p">)</span>
+ <span class="n">VIP</span><span class="p">:</span><span class="mi">0</span>      <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span>       <span class="n">Started</span> <span class="n">a1</span>
+ <span class="n">VIP</span><span class="p">:</span><span class="mi">1</span>      <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span>       <span class="n">Started</span> <span class="n">a2</span>
+ <span class="n">VIP</span><span class="p">:</span><span class="mi">2</span>      <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span>       <span class="n">Started</span> <span class="n">a3</span>
+ <span class="n">VIP</span><span class="p">:</span><span class="mi">3</span>      <span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span>       <span class="n">Started</span> <span class="n">a4</span>
+ <span class="n">Clone</span> <span class="n">Set</span><span class="p">:</span> <span class="n">webserver</span><span class="o">-</span><span class="n">clone</span> <span class="p">[</span><span class="n">webserver</span><span class="p">]</span>
+ <span class="n">Started</span><span class="p">:</span> <span class="p">[</span> <span class="n">a1</span> <span class="n">a2</span> <span class="n">a3</span> <span class="n">a4</span> <span class="p">]</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="vip-mechanisms">
+<h2>7.2. VIP mechanisms<a class="headerlink" href="#vip-mechanisms" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">All VIP have the same MAC address</p>
+<p>Utilize arping (need to install net-tools) to look up MAC address of the VIP (192.168.110.120)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># arping 192.168.110.120 -c 1</span>
+<span class="n">ARPING</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">110.120</span> <span class="kn">from</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">110.121</span> <span class="n">eth0</span>
+<span class="n">Unicast</span> <span class="n">reply</span> <span class="kn">from</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">110.120</span> <span class="p">[</span><span class="mi">21</span><span class="p">:</span><span class="mi">37</span><span class="p">:</span><span class="mi">6</span><span class="n">F</span><span class="p">:</span><span class="mi">88</span><span class="p">:</span><span class="n">C2</span><span class="p">:</span><span class="n">A0</span><span class="p">]</span>  <span class="mf">0.850</span><span class="n">ms</span>
+<span class="n">Unicast</span> <span class="n">reply</span> <span class="kn">from</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">110.120</span> <span class="p">[</span><span class="mi">21</span><span class="p">:</span><span class="mi">37</span><span class="p">:</span><span class="mi">6</span><span class="n">F</span><span class="p">:</span><span class="mi">88</span><span class="p">:</span><span class="n">C2</span><span class="p">:</span><span class="n">A0</span><span class="p">]</span>  <span class="mf">1.271</span><span class="n">ms</span>
+<span class="n">Unicast</span> <span class="n">reply</span> <span class="kn">from</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">110.120</span> <span class="p">[</span><span class="mi">21</span><span class="p">:</span><span class="mi">37</span><span class="p">:</span><span class="mi">6</span><span class="n">F</span><span class="p">:</span><span class="mi">88</span><span class="p">:</span><span class="n">C2</span><span class="p">:</span><span class="n">A0</span><span class="p">]</span>  <span class="mf">1.643</span><span class="n">ms</span>
+<span class="n">Sent</span> <span class="mi">1</span> <span class="n">probes</span> <span class="p">(</span><span class="mi">1</span> <span class="n">broadcast</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+<span class="n">Received</span> <span class="mi">3</span> <span class="n">response</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>host a2, a3, and a4 replied to the arping request from host a1. They all have the same MAC address.</p>
+</li>
+<li><p class="first">What happens when the http requests are sent to the VIP?</p>
+<p>As all the VIPs on the hosts have the same MAC address, the requests are sent to all hosts with VIP. Only one of the hosts (a4 in the following case) replies to the request. According to the documentations of Pacemaker, the host to reply is calculated by the hash value created by the IP address and port of the client sending the request.</p>
+<p>host a4, which receives the request and replies to it</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a4</span> <span class="o">~</span><span class="p">]</span><span class="c1"># tcpdump &#39;tcp port 80&#39;</span>
+<span class="n">tcpdump</span><span class="p">:</span> <span class="n">verbose</span> <span class="n">output</span> <span class="n">suppressed</span><span class="p">,</span> <span class="n">use</span> <span class="o">-</span><span class="n">v</span> <span class="ow">or</span> <span class="o">-</span><span class="n">vv</span> <span class="k">for</span> <span class="n">full</span> <span class="n">protocol</span> <span class="n">decode</span>
+<span class="n">listening</span> <span class="n">on</span> <span class="n">eth0</span><span class="p">,</span> <span class="n">link</span><span class="o">-</span><span class="nb">type</span> <span class="n">EN10MB</span> <span class="p">(</span><span class="n">Ethernet</span><span class="p">),</span> <span class="n">capture</span> <span class="n">size</span> <span class="mi">65535</span> <span class="nb">bytes</span>
+
+
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">58.940199</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a4</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="n">S</span><span class="p">],</span> <span class="n">seq</span> <span class="mi">1112197014</span><span class="p">,</span> <span class="n">win</span> <span class="mi">29200</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">mss</span> <span class="mi">1460</span><span class="p">,</span><span class="n">sackOK</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019272</span> <span class="n">ecr</span> <span class="mi">0</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">wscale</span> <span class="mi">7</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">58.940286</span> <span class="n">IP</span> <span class="n">a4</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span> <span class="o">&gt;</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="n">S</span><span class="o">.</span><span class="p">],</span> <span class="n">seq</span> <span class="mi">1671459417</span><span class="p">,</span> <span class="n">ack</span> <span class="mi">1112197015</span><span class="p">,</span> <span class="n">win</span> <span class="mi">28960</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">mss</span> <span class="mi">1460</span><span class="p">,</span><span class="n">sackOK</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">3884336</span> <span class="n">ecr</span> <span class="mi">4019272</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">wscale</span> <span class="mi">7</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">58.941460</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a4</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="o">.</span><span class="p">],</span> <span class="n">ack</span> <span class="mi">1</span><span class="p">,</span> <span class="n">win</span> <span class="mi">229</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019273</span> <span class="n">ecr</span> <span class="mi">3884336</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">58.941637</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a4</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="n">P</span><span class="o">.</span><span class="p">],</span> <span class="n">seq</span> <span class="mi">1</span><span class="p">:</span><span class="mi">80</span><span class="p">,</span> <span class="n">ack</span> <span class="mi">1</span><span class="p">,</span> <span class="n">win</span> <span class="mi">229</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019273</span> <span class="n">ecr</span> <span class="mi">3884336</span><span class="p">],</span> <span class="n">length</span> <span class="mi">79</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">58.941700</span> <span class="n">IP</span> <span class="n">a4</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span> <span class="o">&gt;</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="o">.</span><span class="p">],</span> <span class="n">ack</span> <span class="mi">80</span><span class="p">,</span> <span class="n">win</span> <span class="mi">227</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">3884337</span> <span class="n">ecr</span> <span class="mi">4019273</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">58.941951</span> <span class="n">IP</span> <span class="n">a4</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span> <span class="o">&gt;</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="n">P</span><span class="o">.</span><span class="p">],</span> <span class="n">seq</span> <span class="mi">1</span><span class="p">:</span><span class="mi">298</span><span class="p">,</span> <span class="n">ack</span> <span class="mi">80</span><span class="p">,</span> <span class="n">win</span> <span class="mi">227</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">3884338</span> <span class="n">ecr</span> <span class="mi">4019273</span><span class="p">],</span> <span class="n">length</span> <span class="mi">297</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">58.942042</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a4</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="o">.</span><span class="p">],</span> <span class="n">ack</span> <span class="mi">298</span><span class="p">,</span> <span class="n">win</span> <span class="mi">237</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019274</span> <span class="n">ecr</span> <span class="mi">3884338</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">58.942176</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a4</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="p">],</span> <span class="n">seq</span> <span class="mi">80</span><span class="p">,</span> <span class="n">ack</span> <span class="mi">298</span><span class="p">,</span> <span class="n">win</span> <span class="mi">237</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019274</span> <span class="n">ecr</span> <span class="mi">3884338</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">58.942242</span> <span class="n">IP</span> <span class="n">a4</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span> <span class="o">&gt;</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="p">],</span> <span class="n">seq</span> <span class="mi">298</span><span class="p">,</span> <span class="n">ack</span> <span class="mi">81</span><span class="p">,</span> <span class="n">win</span> <span class="mi">227</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">3884338</span> <span class="n">ecr</span> <span class="mi">4019274</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">58.942369</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a4</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="o">.</span><span class="p">],</span> <span class="n">ack</span> <span class="mi">299</span><span class="p">,</span> <span class="n">win</span> <span class="mi">237</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019274</span> <span class="n">ecr</span> <span class="mi">3884338</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>other hosts a1, a2, and a3, which receive the request but don&#8217;t reply</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># tcpdump &#39;tcp port 80&#39;</span>
+<span class="p">[</span> <span class="mf">4151.180262</span><span class="p">]</span> <span class="n">device</span> <span class="n">eth0</span> <span class="n">entered</span> <span class="n">promiscuous</span> <span class="n">mode</span>
+<span class="n">tcpdump</span><span class="p">:</span> <span class="n">verbose</span> <span class="n">output</span> <span class="n">suppressed</span><span class="p">,</span> <span class="n">use</span> <span class="o">-</span><span class="n">v</span> <span class="ow">or</span> <span class="o">-</span><span class="n">vv</span> <span class="k">for</span> <span class="n">full</span> <span class="n">protocol</span> <span class="n">decode</span>
+<span class="n">listening</span> <span class="n">on</span> <span class="n">eth0</span><span class="p">,</span> <span class="n">link</span><span class="o">-</span><span class="nb">type</span> <span class="n">EN10MB</span> <span class="p">(</span><span class="n">Ethernet</span><span class="p">),</span> <span class="n">capture</span> <span class="n">size</span> <span class="mi">65535</span> <span class="nb">bytes</span>
+
+
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">59.412011</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a1</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="n">S</span><span class="p">],</span> <span class="n">seq</span> <span class="mi">1112197014</span><span class="p">,</span> <span class="n">win</span> <span class="mi">29200</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">mss</span> <span class="mi">1460</span><span class="p">,</span><span class="n">sackOK</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019272</span> <span class="n">ecr</span> <span class="mi">0</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">wscale</span> <span class="mi">7</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">59.412908</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a1</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="o">.</span><span class="p">],</span> <span class="n">ack</span> <span class="mi">1671459418</span><span class="p">,</span> <span class="n">win</span> <span class="mi">229</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019273</span> <span class="n">ecr</span> <span class="mi">3884336</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">59.413261</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a1</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="n">P</span><span class="o">.</span><span class="p">],</span> <span class="n">seq</span> <span class="mi">0</span><span class="p">:</span><span class="mi">79</span><span class="p">,</span> <span class="n">ack</span> <span class="mi">1</span><span class="p">,</span> <span class="n">win</span> <span class="mi">229</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019273</span> <span class="n">ecr</span> <span class="mi">3884336</span><span class="p">],</span> <span class="n">length</span> <span class="mi">79</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">59.413637</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a1</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="o">.</span><span class="p">],</span> <span class="n">ack</span> <span class="mi">298</span><span class="p">,</span> <span class="n">win</span> <span class="mi">237</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019274</span> <span class="n">ecr</span> <span class="mi">3884338</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">59.413663</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a1</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="p">],</span> <span class="n">seq</span> <span class="mi">79</span><span class="p">,</span> <span class="n">ack</span> <span class="mi">298</span><span class="p">,</span> <span class="n">win</span> <span class="mi">237</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019274</span> <span class="n">ecr</span> <span class="mi">3884338</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+<span class="mi">11</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mf">59.413859</span> <span class="n">IP</span> <span class="n">gw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="mi">33382</span> <span class="o">&gt;</span> <span class="n">a1</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">http</span><span class="p">:</span> <span class="n">Flags</span> <span class="p">[</span><span class="o">.</span><span class="p">],</span> <span class="n">ack</span> <span class="mi">299</span><span class="p">,</span> <span class="n">win</span> <span class="mi">237</span><span class="p">,</span> <span class="n">options</span> <span class="p">[</span><span class="n">nop</span><span class="p">,</span><span class="n">nop</span><span class="p">,</span><span class="n">TS</span> <span class="n">val</span> <span class="mi">4019274</span> <span class="n">ecr</span> <span class="mi">3884338</span><span class="p">],</span> <span class="n">length</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">7. Active/Active setup - VIP</a><ul>
+<li><a class="reference internal" href="#setup-procedures">7.1. Setup procedures</a></li>
+<li><a class="reference internal" href="#vip-mechanisms">7.2. VIP mechanisms</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="fence_case_study.html"
+                        title="previous chapter">6. Fencing case studies</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="corosync_crypto.html"
+                        title="next chapter">8. Crypt corosync/totem messaging</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/active_active_vip.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="corosync_crypto.html" title="8. Crypt corosync/totem messaging"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="fence_case_study.html" title="6. Fencing case studies"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

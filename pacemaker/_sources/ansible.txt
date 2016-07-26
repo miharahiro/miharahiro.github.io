@@ -1,0 +1,14 @@
+===========================================
+Test env auto creation / Ansible part
+===========================================
+
+Prerequisites
+--------------------
+
+- The followings are installed.
+::
+
+   ansible
+   sshpass
+   /root/.ssh/id_rsa.pub without password exists
+  

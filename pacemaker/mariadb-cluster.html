@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>23. Setting up clustered MariaDB with Pacemaker &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" />
+    <link rel="prev" title="22. CIB" href="cib.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="cib.html" title="22. CIB"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="setting-up-clustered-mariadb-with-pacemaker">
+<h1>23. Setting up clustered MariaDB with Pacemaker<a class="headerlink" href="#setting-up-clustered-mariadb-with-pacemaker" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="install-mariadb">
+<h2>23.1. Install MariaDB<a class="headerlink" href="#install-mariadb" title="Permalink to this headline">¶</a></h2>
+<p>Install MariaDB</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># yum -y install mariadb-server</span>
+</pre></div>
+</div>
+<p>[N&#8217;*&#8217;] Configure [mysqld] section in /etc/my.cnf</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">log</span><span class="o">-</span><span class="nb">bin</span><span class="o">=</span><span class="n">mariadb</span><span class="o">-</span><span class="nb">bin</span>
+<span class="n">server</span><span class="o">-</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span> <span class="o">&lt;-</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mf">3.</span><span class="o">..</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="n-create-replication-user">
+<h2>23.2. [N] Create replication user<a class="headerlink" href="#n-create-replication-user" title="Permalink to this headline">¶</a></h2>
+<p>Ref :</p>
+<p><a class="reference external" href="http://gmt-24.net/archives/1240">http://gmt-24.net/archives/1240</a></p>
+<p><a class="reference external" href="https://mariadb.com/kb/en/mariadb/setting-up-replication/">https://mariadb.com/kb/en/mariadb/setting-up-replication/</a></p>
+<p>Start MariaDB</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># systemctl start mariadb.service</span>
+</pre></div>
+</div>
+<p>Create replication user</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@b1</span> <span class="n">heartbeat</span><span class="p">]</span><span class="c1"># mysql -u root</span>
+<span class="n">Welcome</span> <span class="n">to</span> <span class="n">the</span> <span class="n">MariaDB</span> <span class="n">monitor</span><span class="o">.</span>  <span class="n">Commands</span> <span class="n">end</span> <span class="k">with</span> <span class="p">;</span> <span class="ow">or</span> \<span class="n">g</span><span class="o">.</span>
+<span class="n">Your</span> <span class="n">MariaDB</span> <span class="n">connection</span> <span class="nb">id</span> <span class="ow">is</span> <span class="mi">2</span>
+<span class="n">Server</span> <span class="n">version</span><span class="p">:</span> <span class="mf">5.5</span><span class="o">.</span><span class="mi">47</span><span class="o">-</span><span class="n">MariaDB</span><span class="o">-</span><span class="n">log</span> <span class="n">MariaDB</span> <span class="n">Server</span>
+
+<span class="n">Copyright</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">2015</span><span class="p">,</span> <span class="n">Oracle</span><span class="p">,</span> <span class="n">MariaDB</span> <span class="n">Corporation</span> <span class="n">Ab</span> <span class="ow">and</span> <span class="n">others</span><span class="o">.</span>
+
+<span class="n">Type</span> <span class="s1">&#39;help;&#39;</span> <span class="ow">or</span> <span class="s1">&#39;\h&#39;</span> <span class="k">for</span> <span class="n">help</span><span class="o">.</span> <span class="n">Type</span> <span class="s1">&#39;\c&#39;</span> <span class="n">to</span> <span class="n">clear</span> <span class="n">the</span> <span class="n">current</span> <span class="nb">input</span> <span class="n">statement</span><span class="o">.</span>
+
+<span class="n">MariaDB</span> <span class="p">[(</span><span class="n">none</span><span class="p">)]</span><span class="o">&gt;</span> <span class="n">GRANT</span> <span class="n">REPLICATION</span> <span class="n">SLAVE</span> <span class="n">ON</span> <span class="o">*.*</span> <span class="n">TO</span> <span class="s1">&#39;repl&#39;</span><span class="o">@</span><span class="s1">&#39;%&#39;</span> <span class="n">IDENTIFIED</span> <span class="n">BY</span> <span class="s1">&#39;slavepass&#39;</span><span class="p">;</span>
+
+<span class="n">MariaDB</span> <span class="p">[(</span><span class="n">none</span><span class="p">)]</span><span class="o">&gt;</span> <span class="n">GRANT</span> <span class="n">SUPER</span><span class="p">,</span><span class="n">REPLICATION</span> <span class="n">SLAVE</span><span class="p">,</span><span class="n">REPLICATION</span> <span class="n">CLIENT</span><span class="p">,</span><span class="n">PROCESS</span> <span class="n">ON</span> <span class="o">*.*</span> <span class="n">TO</span> <span class="s1">&#39;repl&#39;</span><span class="o">@</span><span class="s1">&#39;localhost&#39;</span> <span class="n">IDENTIFIED</span> <span class="n">BY</span> <span class="s1">&#39;slavepass&#39;</span><span class="p">;</span>
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">0</span> <span class="n">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mf">0.00</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">MariaDB</span> <span class="p">[(</span><span class="n">none</span><span class="p">)]</span><span class="o">&gt;</span> <span class="n">FLUSH</span> <span class="n">PRIVILEGES</span><span class="p">;</span>
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">0</span> <span class="n">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mf">0.00</span> <span class="n">sec</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Stop MariaDB</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@b1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># systemctl stop mariadb.service</span>
+</pre></div>
+</div>
+<p>Copy MariaDB to other nodes.
+On other nodes,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@b2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># rm -rf /var/lib/mysql/</span>
+</pre></div>
+</div>
+<p>Copy DB to other nodes,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@b1</span> <span class="n">heartbeat</span><span class="p">]</span><span class="c1"># tar cf - -C /var/lib mysql | ssh b2 tar xpvf - -C /var/lib/</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="setup-cluster-resource">
+<h2>23.3. Setup cluster resource<a class="headerlink" href="#setup-cluster-resource" title="Permalink to this headline">¶</a></h2>
+<p>b2, b3 as slave nodes.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@b1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs cluster standby b2</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@b1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs cluster standby b3</span>
+</pre></div>
+</div>
+<p>Register cluster resource</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pcs</span> <span class="n">cluster</span> <span class="n">cib</span> <span class="n">mysql_repl</span>
+<span class="n">pcs</span> <span class="o">-</span><span class="n">f</span> <span class="n">mysql_repl</span> <span class="n">resource</span> <span class="n">create</span> <span class="n">mysql</span> <span class="n">ocf</span><span class="p">:</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">mysql</span>
+<span class="n">pcs</span> <span class="o">-</span><span class="n">f</span> <span class="n">mysql_repl</span> <span class="n">resource</span> <span class="n">update</span> <span class="n">mysql</span> <span class="n">binary</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">mysqld_safe</span>
+<span class="n">pcs</span> <span class="o">-</span><span class="n">f</span> <span class="n">mysql_repl</span> <span class="n">resource</span> <span class="n">update</span> <span class="n">mysql</span> <span class="n">datadir</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">mysql</span>
+<span class="n">pcs</span> <span class="o">-</span><span class="n">f</span> <span class="n">mysql_repl</span> <span class="n">resource</span> <span class="n">update</span> <span class="n">mysql</span> <span class="n">log</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">mariadb</span><span class="o">/</span><span class="n">mariadb</span><span class="o">.</span><span class="n">log</span>
+<span class="n">pcs</span> <span class="o">-</span><span class="n">f</span> <span class="n">mysql_repl</span> <span class="n">resource</span> <span class="n">update</span> <span class="n">mysql</span> <span class="n">pid</span><span class="o">=/</span><span class="n">run</span><span class="o">/</span><span class="n">mariadb</span><span class="o">/</span><span class="n">mariadb</span><span class="o">.</span><span class="n">pid</span>
+<span class="n">pcs</span> <span class="o">-</span><span class="n">f</span> <span class="n">mysql_repl</span> <span class="n">resource</span> <span class="n">update</span> <span class="n">mysql</span> <span class="n">replication_user</span><span class="o">=</span><span class="n">repl</span>
+<span class="n">pcs</span> <span class="o">-</span><span class="n">f</span> <span class="n">mysql_repl</span> <span class="n">resource</span> <span class="n">update</span> <span class="n">mysql</span> <span class="n">replication_passwd</span><span class="o">=</span><span class="n">slavepass</span>
+<span class="n">pcs</span> <span class="o">-</span><span class="n">f</span> <span class="n">mysql_repl</span> <span class="n">resource</span> <span class="n">op</span> <span class="n">add</span> <span class="n">mysql</span> <span class="n">notify</span> <span class="n">interval</span><span class="o">=</span><span class="mi">0</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">90</span><span class="n">s</span>
+<span class="n">pcs</span> <span class="n">cluster</span> <span class="n">cib</span><span class="o">-</span><span class="n">push</span> <span class="n">mysql_repl</span>
+<span class="n">CIB</span> <span class="n">updated</span>
+</pre></div>
+</div>
+<p>Clone the resource</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@b1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource master mysql-clone mysql master-max=1 master-node-max=1 clone-max=2 clone-node-max=1 notify=true</span>
+</pre></div>
+</div>
+<p>Unstandby b2</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@b1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs cluster unstandby b2</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="selinux">
+<h2>23.4. SELinux<a class="headerlink" href="#selinux" title="Permalink to this headline">¶</a></h2>
+<p>Ref:</p>
+<p><a class="reference external" href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Fixing_Problems-Allowing_Access_audit2allow.html">https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Fixing_Problems-Allowing_Access_audit2allow.html</a></p>
+<p>After above procedures, got errors (audit.log)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nb">type</span><span class="o">=</span><span class="n">AVC</span> <span class="n">msg</span><span class="o">=</span><span class="n">audit</span><span class="p">(</span><span class="mf">1466415987.567</span><span class="p">:</span><span class="mi">366</span><span class="p">):</span> <span class="n">avc</span><span class="p">:</span>  <span class="n">denied</span>  <span class="p">{</span> <span class="n">read</span> <span class="n">write</span> <span class="p">}</span> <span class="k">for</span>  <span class="n">pid</span><span class="o">=</span><span class="mi">2833</span> <span class="n">comm</span><span class="o">=</span><span class="s2">&quot;mysqld&quot;</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mariadb-bin.index&quot;</span> <span class="n">dev</span><span class="o">=</span><span class="s2">&quot;dm-0&quot;</span> <span class="n">ino</span><span class="o">=</span><span class="mi">17443052</span> <span class="n">scontext</span><span class="o">=</span><span class="n">system_u</span><span class="p">:</span><span class="n">system_r</span><span class="p">:</span><span class="n">mysqld_t</span><span class="p">:</span><span class="n">s0</span> <span class="n">tcontext</span><span class="o">=</span><span class="n">unconfined_u</span><span class="p">:</span><span class="n">object_r</span><span class="p">:</span><span class="n">var_lib_t</span><span class="p">:</span><span class="n">s0</span> <span class="n">tclass</span><span class="o">=</span><span class="n">file</span>
+<span class="nb">type</span><span class="o">=</span><span class="n">AVC</span> <span class="n">msg</span><span class="o">=</span><span class="n">audit</span><span class="p">(</span><span class="mf">1466415987.567</span><span class="p">:</span><span class="mi">366</span><span class="p">):</span> <span class="n">avc</span><span class="p">:</span>  <span class="n">denied</span>  <span class="p">{</span> <span class="n">read</span> <span class="n">write</span> <span class="p">}</span> <span class="k">for</span>  <span class="n">pid</span><span class="o">=</span><span class="mi">2833</span> <span class="n">comm</span><span class="o">=</span><span class="s2">&quot;mysqld&quot;</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mariadb-bin.index&quot;</span> <span class="n">dev</span><span class="o">=</span><span class="s2">&quot;dm-0&quot;</span> <span class="n">ino</span><span class="o">=</span><span class="mi">17443052</span> <span class="n">scontext</span><span class="o">=</span><span class="n">system_u</span><span class="p">:</span><span class="n">system_r</span><span class="p">:</span><span class="n">mysqld_t</span><span class="p">:</span><span class="n">s0</span> <span class="n">tcontext</span><span class="o">=</span><span class="n">unconfined_u</span><span class="p">:</span><span class="n">object_r</span><span class="p">:</span><span class="n">var_lib_t</span><span class="p">:</span><span class="n">s0</span> <span class="n">tclass</span><span class="o">=</span><span class="n">file</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@b2</span> <span class="o">~</span><span class="p">]</span><span class="c1"># audit2allow -a</span>
+
+<span class="c1">#============= mysqld_t ==============</span>
+<span class="n">allow</span> <span class="n">mysqld_t</span> <span class="n">var_lib_t</span><span class="p">:</span><span class="n">file</span> <span class="p">{</span> <span class="n">read</span> <span class="n">write</span> <span class="nb">getattr</span> <span class="nb">open</span> <span class="n">lock</span> <span class="p">};</span>
+<span class="n">allow</span> <span class="n">mysqld_t</span> <span class="n">var_lib_t</span><span class="p">:</span><span class="n">sock_file</span> <span class="p">{</span> <span class="n">create</span> <span class="n">unlink</span> <span class="p">};</span>
+</pre></div>
+</div>
+<p>Create a custom module and apply the rule</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@b2</span> <span class="n">selinux</span><span class="p">]</span><span class="c1"># audit2allow -a -M mariadb</span>
+<span class="o">********************</span> <span class="n">IMPORTANT</span> <span class="o">***********************</span>
+<span class="n">To</span> <span class="n">make</span> <span class="n">this</span> <span class="n">policy</span> <span class="n">package</span> <span class="n">active</span><span class="p">,</span> <span class="n">execute</span><span class="p">:</span>
+
+<span class="n">semodule</span> <span class="o">-</span><span class="n">i</span> <span class="n">mariadb</span><span class="o">.</span><span class="n">pp</span>
+
+<span class="p">[</span><span class="n">root</span><span class="nd">@b2</span> <span class="n">selinux</span><span class="p">]</span><span class="c1"># ls</span>
+<span class="n">configconfig</span><span class="o">~</span>  <span class="n">mariadb</span><span class="o">.</span><span class="n">pp</span>  <span class="n">mariadb</span><span class="o">.</span><span class="n">te</span>  <span class="n">semanage</span><span class="o">.</span><span class="n">conftargeted</span>
+<span class="p">[</span><span class="n">root</span><span class="nd">@b2</span> <span class="n">selinux</span><span class="p">]</span><span class="c1"># semodule -i mariadb.pp</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">23. Setting up clustered MariaDB with Pacemaker</a><ul>
+<li><a class="reference internal" href="#install-mariadb">23.1. Install MariaDB</a></li>
+<li><a class="reference internal" href="#n-create-replication-user">23.2. [N] Create replication user</a></li>
+<li><a class="reference internal" href="#setup-cluster-resource">23.3. Setup cluster resource</a></li>
+<li><a class="reference internal" href="#selinux">23.4. SELinux</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cib.html"
+                        title="previous chapter">22. CIB</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/mariadb-cluster.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="cib.html" title="22. CIB"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

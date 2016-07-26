@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>20. cib - crmd &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" />
+    <link rel="next" title="21. Active/Passive HA proxy using Pacemaker setup" href="pacemaker-haproxy-setup.html" />
+    <link rel="prev" title="19. Pengine - crmd" href="pengine-crmd.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pacemaker-haproxy-setup.html" title="21. Active/Passive HA proxy using Pacemaker setup"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pengine-crmd.html" title="19. Pengine - crmd"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="cib-crmd">
+<h1>20. cib - crmd<a class="headerlink" href="#cib-crmd" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>crmd内でcibとの接続は、fsa_cib_connで表現されている。</li>
+<li>crmdからcibへの問い合わせは多岐に渡っているが、fsa_cib_conn-&gt;cmds-&gt;... で実施されており、そのAPIは、下記で実装されている。</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">include</span><span class="o">/</span><span class="n">crm</span><span class="o">/</span><span class="n">cib</span><span class="o">.</span><span class="n">h</span><span class="p">:</span><span class="mi">85</span><span class="p">:</span><span class="n">typedef</span> <span class="n">struct</span> <span class="n">cib_api_operations_s</span>
+
+<span class="mi">85</span><span class="n">typedef</span> <span class="n">struct</span> <span class="n">cib_api_operations_s</span> <span class="p">{</span>
+<span class="mi">86</span>    <span class="nb">int</span> <span class="p">(</span><span class="o">*</span><span class="n">signon</span><span class="p">)</span> <span class="p">(</span><span class="n">cib_t</span> <span class="o">*</span> <span class="n">cib</span><span class="p">,</span> <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="n">enum</span> <span class="n">cib_conn_type</span> <span class="nb">type</span><span class="p">);</span>
+<span class="mi">87</span>    <span class="nb">int</span> <span class="p">(</span><span class="o">*</span><span class="n">signon_raw</span><span class="p">)</span> <span class="p">(</span><span class="n">cib_t</span> <span class="o">*</span> <span class="n">cib</span><span class="p">,</span> <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="n">enum</span> <span class="n">cib_conn_type</span> <span class="nb">type</span><span class="p">,</span> <span class="nb">int</span> <span class="o">*</span><span class="n">event_fd</span><span class="p">);</span>
+<span class="mi">88</span>    <span class="nb">int</span> <span class="p">(</span><span class="o">*</span><span class="n">signoff</span><span class="p">)</span> <span class="p">(</span><span class="n">cib_t</span> <span class="o">*</span> <span class="n">cib</span><span class="p">);</span>
+<span class="mi">89</span>    <span class="nb">int</span> <span class="p">(</span><span class="o">*</span><span class="n">free</span><span class="p">)</span> <span class="p">(</span><span class="n">cib_t</span> <span class="o">*</span> <span class="n">cib</span><span class="p">);</span>
+<span class="mi">90</span>
+<span class="mi">91</span>    <span class="nb">int</span> <span class="p">(</span><span class="o">*</span><span class="n">set_op_callback</span><span class="p">)</span> <span class="p">(</span><span class="n">cib_t</span> <span class="o">*</span> <span class="n">cib</span><span class="p">,</span> <span class="n">void</span> <span class="p">(</span><span class="o">*</span><span class="n">callback</span><span class="p">)</span> <span class="p">(</span><span class="n">const</span> <span class="n">xmlNode</span> <span class="o">*</span> <span class="n">msg</span><span class="p">,</span> <span class="nb">int</span> <span class="n">callid</span><span class="p">,</span>
+<span class="mi">92</span>                                                           <span class="nb">int</span> <span class="n">rc</span><span class="p">,</span> <span class="n">xmlNode</span> <span class="o">*</span> <span class="n">output</span><span class="p">));</span>
+<span class="mi">93</span>
+<span class="mi">94</span>    <span class="nb">int</span> <span class="p">(</span><span class="o">*</span><span class="n">add_notify_callback</span><span class="p">)</span> <span class="p">(</span><span class="n">cib_t</span> <span class="o">*</span> <span class="n">cib</span><span class="p">,</span> <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">event</span><span class="p">,</span>
+<span class="mi">95</span>                                <span class="n">void</span> <span class="p">(</span><span class="o">*</span><span class="n">callback</span><span class="p">)</span> <span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">event</span><span class="p">,</span> <span class="n">xmlNode</span> <span class="o">*</span> <span class="n">msg</span><span class="p">));</span>
+<span class="mi">96</span>
+<span class="mi">97</span>    <span class="nb">int</span> <span class="p">(</span><span class="o">*</span><span class="n">del_notify_callback</span><span class="p">)</span> <span class="p">(</span><span class="n">cib_t</span> <span class="o">*</span> <span class="n">cib</span><span class="p">,</span> <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">event</span><span class="p">,</span>
+<span class="mi">98</span>                                <span class="n">void</span> <span class="p">(</span><span class="o">*</span><span class="n">callback</span><span class="p">)</span> <span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">event</span><span class="p">,</span> <span class="n">xmlNode</span> <span class="o">*</span> <span class="n">msg</span><span class="p">));</span>
+<span class="o">.</span>
+<span class="o">.</span>
+<span class="o">.</span>
+</pre></div>
+</div>
+<p>crmdからcibにipc経由で送信されたリクエストは、cib内ではcib_common_callback()で処理される。</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cib</span><span class="o">/</span><span class="n">callbacks</span><span class="o">.</span><span class="n">c</span>
+<span class="mi">247</span><span class="n">cib_common_callback</span><span class="p">(</span><span class="n">qb_ipcs_connection_t</span> <span class="o">*</span> <span class="n">c</span><span class="p">,</span> <span class="n">void</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">gboolean</span> <span class="n">privileged</span><span class="p">)</span>
+<span class="mi">248</span><span class="p">{</span>
+<span class="mi">249</span>    <span class="n">uint32_t</span> <span class="nb">id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="mi">250</span>    <span class="n">uint32_t</span> <span class="n">flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="mi">251</span>    <span class="nb">int</span> <span class="n">call_options</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="mi">252</span>    <span class="n">crm_client_t</span> <span class="o">*</span><span class="n">cib_client</span> <span class="o">=</span> <span class="n">crm_client_get</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+<span class="mi">253</span>    <span class="n">xmlNode</span> <span class="o">*</span><span class="n">op_request</span> <span class="o">=</span> <span class="n">crm_ipcs_recv</span><span class="p">(</span><span class="n">cib_client</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="o">&amp;</span><span class="nb">id</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">flags</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>最終的には、cib/callbacks.cの247cib_common_callback() -&gt; 914cib_process_request() -&gt; 1165cib_process_command()で処理される。</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pengine-crmd.html"
+                        title="previous chapter">19. Pengine - crmd</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pacemaker-haproxy-setup.html"
+                        title="next chapter">21. Active/Passive HA proxy using Pacemaker setup</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cib-crmd.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="pacemaker-haproxy-setup.html" title="21. Active/Passive HA proxy using Pacemaker setup"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pengine-crmd.html" title="19. Pengine - crmd"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

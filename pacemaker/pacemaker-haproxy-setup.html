@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>21. Active/Passive HA proxy using Pacemaker setup &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" />
+    <link rel="next" title="22. CIB" href="cib.html" />
+    <link rel="prev" title="20. cib - crmd" href="cib-crmd.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="cib.html" title="22. CIB"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cib-crmd.html" title="20. cib - crmd"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="active-passive-ha-proxy-using-pacemaker-setup">
+<h1>21. Active/Passive HA proxy using Pacemaker setup<a class="headerlink" href="#active-passive-ha-proxy-using-pacemaker-setup" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="prerequisites">
+<h2>21.1. Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>pacemaker / corosync / pcsd installed and active.</li>
+<li>fence devices are properly configured and active.</li>
+</ul>
+</div>
+<div class="section" id="setup-procedures">
+<h2>21.2. Setup procedures<a class="headerlink" href="#setup-procedures" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ha-proxy-setup">
+<h3>21.2.1. HA proxy setup<a class="headerlink" href="#ha-proxy-setup" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a5</span> <span class="o">~</span><span class="p">]</span><span class="c1"># yum -y install haproxy</span>
+</pre></div>
+</div>
+<p>Edit config file (/etc/haproxy/haproxy.cfg)</p>
+<pre class="literal-block">
+#---------------------------------------------------------------------
+# Example configuration for a possible web application.  See the
+# full configuration options online.
+#
+#   http://haproxy.1wt.eu/download/1.4/doc/configuration.txt
+#
+#---------------------------------------------------------------------
+
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+global
+    # to have these messages end up in /var/log/haproxy.log you will
+    # need to:
+    #
+    # 1) configure syslog to accept network log events.  This is done
+    #    by adding the '-r' option to the SYSLOGD_OPTIONS in
+    #    /etc/sysconfig/syslog
+    #
+    # 2) configure local2 events to go to the /var/log/haproxy.log
+    #   file. A line like the following can be added to
+    #   /etc/sysconfig/syslog
+    #
+    #    local2.*                       /var/log/haproxy.log
+    #
+    log         127.0.0.1 local2 debug
+
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     256
+    user        haproxy
+    group       haproxy
+    daemon
+
+    # turn on stats unix socket
+    stats socket /var/lib/haproxy/stats
+
+#---------------------------------------------------------------------
+# common defaults that all the 'listen' and 'backend' sections will
+# use if not designated in their block
+#---------------------------------------------------------------------
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option http-server-close
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+
+#---------------------------------------------------------------------
+# main frontend which proxys to the backends
+#---------------------------------------------------------------------
+frontend  http-in 
+          bind 192.168.110.120:80
+
+#    acl url_static       path_beg       -i /static /images /javascript /stylesheets
+#    acl url_static       path_end       -i .jpg .gif .png .css .js
+
+#    use_backend static          if url_static
+    default_backend             app
+
+#---------------------------------------------------------------------
+# static backend for serving up images, stylesheets and such
+#---------------------------------------------------------------------
+#backend static
+#    balance     roundrobin
+#    server      static 127.0.0.1:4331 check
+
+#---------------------------------------------------------------------
+# round robin balancing between the various backends
+#---------------------------------------------------------------------
+backend app
+    balance     roundrobin
+    server  app1 192.168.110.121:80 check
+    server  app2 192.168.110.122:80 check
+    server  app3 192.168.110.123:80 check
+
+</pre>
+</div>
+<div class="section" id="cluster-setup">
+<h3>21.2.2. Cluster setup<a class="headerlink" href="#cluster-setup" title="Permalink to this headline">¶</a></h3>
+<p>ClusterIP resource setup</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a4</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource create ClusterIP IPaddr2 ip=192.168.110.120 cidr_netmask=24 op  monitor interval=30s</span>
+</pre></div>
+</div>
+<p>HA proxy resource setup</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a4</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource create haproxy systemd:haproxy op monitor interval=10s</span>
+</pre></div>
+</div>
+<p>Colocation setup</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a4</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs constraint colocation add haproxy with ClusterIP INFINITY</span>
+</pre></div>
+</div>
+<p>Then the pcs status shows,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a4</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs status</span>
+<span class="n">Cluster</span> <span class="n">name</span><span class="p">:</span> <span class="n">haproxy_cluster</span>
+<span class="n">Last</span> <span class="n">updated</span><span class="p">:</span> <span class="n">Wed</span> <span class="n">Jun</span>  <span class="mi">8</span> <span class="mi">18</span><span class="p">:</span><span class="mi">46</span><span class="p">:</span><span class="mi">15</span> <span class="mi">2016</span><span class="n">Last</span> <span class="n">change</span><span class="p">:</span> <span class="n">Wed</span> <span class="n">Jun</span>  <span class="mi">8</span> <span class="mi">18</span><span class="p">:</span><span class="mi">27</span><span class="p">:</span><span class="mi">13</span> <span class="mi">2016</span> <span class="n">by</span> <span class="n">root</span> <span class="n">via</span> <span class="n">cibadmin</span> <span class="n">on</span> <span class="n">a4</span>
+<span class="n">Stack</span><span class="p">:</span> <span class="n">corosync</span>
+<span class="n">Current</span> <span class="n">DC</span><span class="p">:</span> <span class="n">a5</span> <span class="p">(</span><span class="n">version</span> <span class="mf">1.1</span><span class="o">.</span><span class="mi">13</span><span class="o">-</span><span class="mf">10.</span><span class="n">el7_2</span><span class="o">.</span><span class="mi">2</span><span class="o">-</span><span class="mi">44</span><span class="n">eb2dd</span><span class="p">)</span> <span class="o">-</span> <span class="n">partition</span> <span class="k">with</span> <span class="n">quorum</span>
+<span class="mi">2</span> <span class="n">nodes</span> <span class="ow">and</span> <span class="mi">4</span> <span class="n">resources</span> <span class="n">configured</span>
+
+<span class="n">Online</span><span class="p">:</span> <span class="p">[</span> <span class="n">a4</span> <span class="n">a5</span> <span class="p">]</span>
+
+<span class="n">Full</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">resources</span><span class="p">:</span>
+
+<span class="n">node1</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a4</span>
+<span class="n">node2</span><span class="o">-</span><span class="n">xvm</span><span class="p">(</span><span class="n">stonith</span><span class="p">:</span><span class="n">fence_xvm</span><span class="p">):</span><span class="n">Started</span> <span class="n">a5</span>
+<span class="n">ClusterIP</span><span class="p">(</span><span class="n">ocf</span><span class="p">::</span><span class="n">heartbeat</span><span class="p">:</span><span class="n">IPaddr2</span><span class="p">):</span><span class="n">Started</span> <span class="n">a4</span>
+<span class="n">haproxy</span><span class="p">(</span><span class="n">systemd</span><span class="p">:</span><span class="n">haproxy</span><span class="p">):</span><span class="n">Started</span> <span class="n">a4</span>
+
+<span class="n">PCSD</span> <span class="n">Status</span><span class="p">:</span>
+<span class="n">a4</span><span class="p">:</span> <span class="n">Online</span>
+<span class="n">a5</span><span class="p">:</span> <span class="n">Online</span>
+
+<span class="n">Daemon</span> <span class="n">Status</span><span class="p">:</span>
+<span class="n">corosync</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">enabled</span>
+<span class="n">pacemaker</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">enabled</span>
+<span class="n">pcsd</span><span class="p">:</span> <span class="n">active</span><span class="o">/</span><span class="n">enabled</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">21. Active/Passive HA proxy using Pacemaker setup</a><ul>
+<li><a class="reference internal" href="#prerequisites">21.1. Prerequisites</a></li>
+<li><a class="reference internal" href="#setup-procedures">21.2. Setup procedures</a><ul>
+<li><a class="reference internal" href="#ha-proxy-setup">21.2.1. HA proxy setup</a></li>
+<li><a class="reference internal" href="#cluster-setup">21.2.2. Cluster setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cib-crmd.html"
+                        title="previous chapter">20. cib - crmd</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cib.html"
+                        title="next chapter">22. CIB</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pacemaker-haproxy-setup.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="cib.html" title="22. CIB"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cib-crmd.html" title="20. cib - crmd"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>

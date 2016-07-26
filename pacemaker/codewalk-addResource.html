@@ -1,0 +1,550 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>15. Code Walk / Adding resources &mdash; PacemakerDoc 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="PacemakerDoc 1 documentation" href="index.html" />
+    <link rel="next" title="16. Code-walk / Monitoring resources" href="codewalk-monitoringResource.html" />
+    <link rel="prev" title="14. Pacemaker inside" href="pacemaker-inside.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="codewalk-monitoringResource.html" title="16. Code-walk / Monitoring resources"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pacemaker-inside.html" title="14. Pacemaker inside"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="code-walk-adding-resources">
+<h1>15. Code Walk / Adding resources<a class="headerlink" href="#code-walk-adding-resources" title="Permalink to this headline">¶</a></h1>
+<p>Add webserver resource like follows.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="nd">@a1</span> <span class="o">~</span><span class="p">]</span><span class="c1"># pcs resource create webserver apache statusurl=&quot;http://localhost&quot;</span>
+</pre></div>
+</div>
+<p>Log (/var/log/cluster/corosync.log)</p>
+<pre class="literal-block">
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       ipc.c:334   )   debug: crm_client_new:      Connecting 0xe15ef0 for uid=0 gid=0 pid=3595 id=47c6c430-2c96-4ac4-be63-f1c88b17c3db
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( ipc_setup.c:506   )   debug: handle_new_connection:       IPC credentials authenticated (2443-3595-14)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (   ipc_shm.c:294   )   debug: qb_ipcs_shm_connect: connecting to client [3595]
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (      ipcs.c:758   )   debug: qb_ipcs_dispatch_connection_request: HUP conn (2443-3595-14)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (      ipcs.c:605   )   debug: qb_ipcs_disconnect:  qb_ipcs_disconnect(2443-3595-14) state:2
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       ipc.c:368   )   debug: crm_client_destroy:  Destroying 0 events
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_rw-response-2443-3595-14-header
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_rw-event-2443-3595-14-header
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_rw-request-2443-3595-14-header
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       ipc.c:334   )   debug: crm_client_new:      Connecting 0xe15ef0 for uid=0 gid=0 pid=3632 id=63610da4-65cf-482f-9ddb-461ec54d1d0c
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( ipc_setup.c:506   )   debug: handle_new_connection:       IPC credentials authenticated (2443-3632-14)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (   ipc_shm.c:294   )   debug: qb_ipcs_shm_connect: connecting to client [3632]
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( callbacks.c:1015  )    info: cib_process_request: Forwarding cib_replace operation for section configuration to master (origin=local/cibadmin/2)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1660  )    info: cib_perform_op:      Diff: --- 0.286.3 2
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1662  )    info: cib_perform_op:      Diff: +++ 0.287.0 cf1fbd551c935897e2799968ea602291
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1728  )    info: cib_perform_op:      +  /cib:  &#64;epoch=287, &#64;num_updates=0
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1684  )    info: cib_perform_op:      ++ /cib/configuration/resources:  &lt;primitive class=&quot;ocf&quot; id=&quot;webserver&quot; provider=&quot;heartbeat&quot; type=&quot;apache&quot;/&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                  &lt;instance_attributes id=&quot;webserver-instance_attributes&quot;&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                    &lt;nvpair id=&quot;webserver-instance_attributes-statusurl&quot; name=&quot;statusurl&quot; value=&quot;http://localhost&quot;/&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                  &lt;/instance_attributes&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                  &lt;operations&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                    &lt;op id=&quot;webserver-start-interval-0s&quot; interval=&quot;0s&quot; name=&quot;start&quot; timeout=&quot;40s&quot;/&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                    &lt;op id=&quot;webserver-stop-interval-0s&quot; interval=&quot;0s&quot; name=&quot;stop&quot; timeout=&quot;60s&quot;/&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                    &lt;op id=&quot;webserver-monitor-interval-10&quot; interval=&quot;10&quot; name=&quot;monitor&quot; timeout=&quot;20s&quot;/&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                  &lt;/operations&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                &lt;/primitive&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (        io.c:404   )   debug: activateCibXml:      Triggering CIB write for cib_replace op
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( callbacks.c:1079  )    info: cib_process_request: Completed cib_replace operation for section configuration: OK (rc=0, origin=a1/cibadmin/2, version=0.287.0)
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (       xml.c:2072  )   debug: xml_patch_version_check:     Can apply patch 0.287.0 to 0.286.3
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_callbacks:378   )   debug: te_update_diff:      Processing (cib_replace) diff: 0.286.3 -&gt; 0.287.0 (S_IDLE)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (  te_utils.c:533   )    info: abort_transition_graph:      Transition aborted by primitive.webserver 'create': Non-status change (cib=0.287.0, source=te_update_diff:426, path=/cib/configuration/resources, 1)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       fsa.c:197   )   debug: s_crmd_fsa:  Processing I_PE_CALC: [ state=S_IDLE cause=C_FSA_INTERNAL origin=abort_transition_graph ]
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       fsa.c:507   )  notice: do_state_transition: State transition S_IDLE -&gt; S_POLICY_ENGINE [ input=I_PE_CALC cause=C_FSA_INTERNAL origin=abort_transition_graph ]
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       fsa.c:615   )   debug: do_state_transition: All 3 cluster nodes are eligible to run resources.
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (   pengine.c:229   )   debug: do_pe_invoke:        Query 56: Requesting the current CIB: S_POLICY_ENGINE
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (       xml.c:2403  )    info: xml_apply_patchset:  v2 digest mis-match: expected cf1fbd551c935897e2799968ea602291, calculated 7d4a14c63b75087dc308560c4a40298c
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (      main.c:1050  )  notice: update_cib_cache_cb: [cib_diff_notify] Patch aborted: Application of an update diff failed (-206)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (      ipcs.c:758   )   debug: qb_ipcs_dispatch_connection_request: HUP conn (2443-3632-14)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (      ipcs.c:605   )   debug: qb_ipcs_disconnect:  qb_ipcs_disconnect(2443-3632-14) state:2
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       ipc.c:368   )   debug: crm_client_destroy:  Destroying 0 events
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_rw-response-2443-3632-14-header
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_rw-event-2443-3632-14-header
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_rw-request-2443-3632-14-header
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (   pengine.c:363   )   debug: do_pe_invoke_callback:       Invoking the PE: query=56, ref=pe_calc-dc-1464594739-52, seq=10440, quorate=1
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (      main.c:1104  )    info: update_cib_cache_cb: Updating stonith device and topology lists now that stonith is enabled
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (      main.c:762   )    info: cib_devices_update:  Updating devices to version 0.287.0
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (    unpack.c:162   )   debug: unpack_config:       STONITH timeout: 60000
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (    unpack.c:166   )   debug: unpack_config:       STONITH of failed nodes is enabled
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (    unpack.c:173   )   debug: unpack_config:       Stop all active resources: false
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (    unpack.c:177   )   debug: unpack_config:       Cluster is symmetric - resources can run anywhere by default
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (    unpack.c:182   )   debug: unpack_config:       Default stickiness: 0
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (    unpack.c:219   )   debug: unpack_config:       On loss of CCM Quorum: Stop ALL resources
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (    unpack.c:265   )   debug: unpack_config:       Node scores: 'red' = -INFINITY, 'yellow' = 0, 'green' = 0
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (      main.c:716   )   debug: cib_device_update:   Device node1-xvm is allowed on a1: score=0
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (  commands.c:996   )   debug: stonith_device_register:     Device 'node1-xvm' already existed in device list (3 active devices)
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (      main.c:716   )   debug: cib_device_update:   Device node2-xvm is allowed on a1: score=0
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (  commands.c:996   )   debug: stonith_device_register:     Device 'node2-xvm' already existed in device list (3 active devices)
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (      main.c:716   )   debug: cib_device_update:   Device node3-xvm is allowed on a1: score=0
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:162   )   debug: unpack_config:       STONITH timeout: 60000
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:166   )   debug: unpack_config:       STONITH of failed nodes is enabled
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:173   )   debug: unpack_config:       Stop all active resources: false
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (  commands.c:996   )   debug: stonith_device_register:     Device 'node3-xvm' already existed in device list (3 active devices)
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:177   )   debug: unpack_config:       Cluster is symmetric - resources can run anywhere by default
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:182   )   debug: unpack_config:       Default stickiness: 0
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:219   )   debug: unpack_config:       On loss of CCM Quorum: Stop ALL resources
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:265   )   debug: unpack_config:       Node scores: 'red' = -INFINITY, 'yellow' = 0, 'green' = 0
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:1367  )    info: determine_online_status_fencing:     Node a3 is active
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:1499  )    info: determine_online_status:     Node a3 is online
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:1367  )    info: determine_online_status_fencing:     Node a1 is active
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:1499  )    info: determine_online_status:     Node a1 is online
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:1367  )    info: determine_online_status_fencing:     Node a2 is active
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    unpack.c:1499  )    info: determine_online_status:     Node a2 is online
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:555   )    info: native_print:        node1-xvm       (stonith:fence_xvm):    Started a1
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:555   )    info: native_print:        node2-xvm       (stonith:fence_xvm):    Started a2
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:555   )    info: native_print:        node3-xvm       (stonith:fence_xvm):    Started a3
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:555   )    info: native_print:        webserver       (ocf::heartbeat:apache):        Stopped
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (     utils.c:293   )   debug: native_assign_node:  Assigning a1 to node1-xvm
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (     utils.c:293   )   debug: native_assign_node:  Assigning a2 to node2-xvm
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (     utils.c:293   )   debug: native_assign_node:  Assigning a3 to node3-xvm
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (     utils.c:293   )   debug: native_assign_node:  Assigning a1 to webserver
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:2800  )   debug: native_create_probe: Probing webserver on a1 (Stopped)
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:2800  )   debug: native_create_probe: Probing webserver on a2 (Stopped)
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:2800  )   debug: native_create_probe: Probing webserver on a3 (Stopped)
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:762   )    info: RecurringOp:  Start recurring monitor (10s) for webserver on a1
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:2232  )    info: LogActions:  Leave   node1-xvm       (Started a1)
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:2232  )    info: LogActions:  Leave   node2-xvm       (Started a2)
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:2232  )    info: LogActions:  Leave   node3-xvm       (Started a3)
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (    native.c:2338  )  notice: LogActions:  Start   webserver       (a1)
+May 30 16:52:19 [2448] a1.pm.redhat.com    pengine: (   pengine.c:179   )  notice: process_pe_message:  Calculated Transition 6: /var/lib/pacemaker/pengine/pe-input-391.bz2
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       fsa.c:197   )   debug: s_crmd_fsa:  Processing I_PE_SUCCESS: [ state=S_POLICY_ENGINE cause=C_IPC_MESSAGE origin=handle_response ]
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       fsa.c:507   )    info: do_state_transition: State transition S_POLICY_ENGINE -&gt; S_TRANSITION_ENGINE [ input=I_PE_SUCCESS cause=C_IPC_MESSAGE origin=handle_response ]
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (    unpack.c:230   )   debug: unpack_graph:        Unpacked transition 6: 9 actions in 9 synapses
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (   tengine.c:208   )    info: do_te_invoke:        Processing graph 6 (ref=pe_calc-dc-1464594739-52) derived from /var/lib/pacemaker/pengine/pe-input-391.bz2
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:422   )  notice: te_rsc_command:      Initiating action 11: monitor webserver_monitor_0 on a3
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:422   )  notice: te_rsc_command:      Initiating action 9: monitor webserver_monitor_0 on a2
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:422   )  notice: te_rsc_command:      Initiating action 7: monitor webserver_monitor_0 on a1 (local)
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:1440  )    info: process_lrmd_get_rsc_info:   Resource 'webserver' not found (3 active resources)
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:1686  )   debug: process_lrmd_message:        Processed lrmd_rsc_info operation from 4959caf7-a821-48aa-a8cd-d1aa2ed36b1b: rc=0, reply=0, notify=0, exit=4203648
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:1415  )    info: process_lrmd_rsc_register:   Added 'webserver' to the rsc list (4 active resources)
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:1686  )   debug: process_lrmd_message:        Processed lrmd_rsc_register operation from 4959caf7-a821-48aa-a8cd-d1aa2ed36b1b: rc=0, reply=1, notify=1, exit=4203648
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:1686  )   debug: process_lrmd_message:        Processed lrmd_rsc_info operation from 4959caf7-a821-48aa-a8cd-d1aa2ed36b1b: rc=0, reply=0, notify=0, exit=4203648
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       lrm.c:2009  )    info: do_lrm_rsc_op:       Performing key=7:6:7:30b1a708-effe-4bb3-a5db-a5d2beb51c02 op=webserver_monitor_0
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:1686  )   debug: process_lrmd_message:        Processed lrmd_rsc_exec operation from 4959caf7-a821-48aa-a8cd-d1aa2ed36b1b: rc=28, reply=1, notify=0, exit=4203648
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:131   )   debug: log_execute: executing - rsc:webserver action:monitor call_id:28
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:689   )   trace: services_os_action_execute:  Async waiting for 3634 - /usr/lib/ocf/resource.d/heartbeat/apache
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     graph.c:343   )   debug: run_graph:   Transition 6 (Complete=0, Pending=3, Fired=3, Skipped=0, Incomplete=6, Source=/var/lib/pacemaker/pengine/pe-input-391.bz2): In-progress
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (  cib_file.c:293   )    info: cib_file_backup:     Archived previous version as /var/lib/pacemaker/cib/cib-29.raw
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (  cib_file.c:385   )   debug: cib_file_write_with_digest:  Writing CIB to disk
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1660  )    info: cib_perform_op:      Diff: --- 0.287.0 2
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1662  )    info: cib_perform_op:      Diff: +++ 0.287.1 (null)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1728  )    info: cib_perform_op:      +  /cib:  &#64;num_updates=1
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1684  )    info: cib_perform_op:      ++ /cib/status/node_state[&#64;id='3']/lrm[&#64;id='3']/lrm_resources:  &lt;lrm_resource id=&quot;webserver&quot; type=&quot;apache&quot; class=&quot;ocf&quot; provider=&quot;heartbeat&quot;/&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                                                &lt;lrm_rsc_op id=&quot;webserver_last_0&quot; operation_key=&quot;webserver_monitor_0&quot; operation=&quot;monitor&quot; crm-debug-origin=&quot;do_update_resource&quot; crm_feature_set=&quot;3.0.10&quot; transition-key=&quot;11:6:7:30b1a708-effe-4bb3-a5db-a5d2beb51c02&quot; transition-magic=&quot;0:7;11:6:7:30b1a708-effe-4bb3-a5db-a5d2beb51c02&quot; on_node=&quot;a3&quot; call-id=&quot;24&quot; rc-code=&quot;7&quot; op-status=&quot;0&quot; interval=&quot;0&quot; 
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                                              &lt;/lrm_resource&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( callbacks.c:1079  )    info: cib_process_request: Completed cib_modify operation for section status: OK (rc=0, origin=a3/crmd/20, version=0.287.1)
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (       xml.c:2072  )   debug: xml_patch_version_check:     Can apply patch 0.287.1 to 0.287.0
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_callbacks:378   )   debug: te_update_diff:      Processing (cib_modify) diff: 0.287.0 -&gt; 0.287.1 (S_TRANSITION_ENGINE)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: ( te_events.c:387   )    info: match_graph_event:   Action webserver_monitor_0 (11) confirmed on a3 (rc=7)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:422   )  notice: te_rsc_command:      Initiating action 10: probe_complete probe_complete-a3 on a3 - no waiting
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:460   )    info: te_rsc_command:      Action 10 confirmed - no wait
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     graph.c:343   )   debug: run_graph:   Transition 6 (Complete=1, Pending=2, Fired=1, Skipped=0, Incomplete=5, Source=/var/lib/pacemaker/pengine/pe-input-391.bz2): In-progress
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     graph.c:343   )   debug: run_graph:   Transition 6 (Complete=2, Pending=2, Fired=0, Skipped=0, Incomplete=5, Source=/var/lib/pacemaker/pengine/pe-input-391.bz2): In-progress
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (  cib_file.c:423   )    info: cib_file_write_with_digest:  Wrote version 0.287.0 of the CIB to disk (digest: ce04d0c6102911744ac0d73e4d92fb56)
+apache(webserver)[3634]:        2016/05/30_16:52:19 INFO: apache not running
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:289   )   trace: operation_finished:  webserver_monitor_0:3634 0x18c3720 0x18c3cf0
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:294   )   trace: operation_finished:  webserver_monitor_0:3634 dispatching stderr
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_monitor_0 stderr
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:296   )   trace: operation_finished:  webserver_monitor_0: (nil)
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:305   )   trace: operation_finished:  webserver_monitor_0:3634 dispatching stdout
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_monitor_0 stdout
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:307   )   trace: operation_finished:  webserver_monitor_0: (nil)
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:143   )   trace: pipe_out_done:       0x18c74a0
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:327   )   debug: operation_finished:  webserver_monitor_0:3634 - exited with rc=7
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:332   )   debug: operation_finished:  webserver_monitor_0:3634:stderr [ -- empty -- ]
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:336   )   debug: operation_finished:  webserver_monitor_0:3634:stdout [ -- empty -- ]
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:113   )   debug: log_finished:        finished - rsc:webserver action:monitor call_id:28 pid:3634 exit-code:7 exec-time:81ms queue-time:0ms
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     utils.c:1942  )   debug: create_operation_update:     do_update_resource: Updating resource webserver after monitor op complete (interval=0)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       lrm.c:2392  )  notice: process_lrm_event:   Operation webserver_monitor_0: not running (node=a1, call=28, rc=7, cib-update=57, confirmed=true)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       lrm.c:196   )   debug: update_history_cache:        Updating history for 'webserver' with monitor op
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( callbacks.c:1015  )    info: cib_process_request: Forwarding cib_modify operation for section status to master (origin=local/crmd/57)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1660  )    info: cib_perform_op:      Diff: --- 0.287.1 2
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1662  )    info: cib_perform_op:      Diff: +++ 0.287.2 (null)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1728  )    info: cib_perform_op:      +  /cib:  &#64;num_updates=2
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1684  )    info: cib_perform_op:      ++ /cib/status/node_state[&#64;id='1']/lrm[&#64;id='1']/lrm_resources:  &lt;lrm_resource id=&quot;webserver&quot; type=&quot;apache&quot; class=&quot;ocf&quot; provider=&quot;heartbeat&quot;/&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                                                &lt;lrm_rsc_op id=&quot;webserver_last_0&quot; operation_key=&quot;webserver_monitor_0&quot; operation=&quot;monitor&quot; crm-debug-origin=&quot;do_update_resource&quot; crm_feature_set=&quot;3.0.10&quot; transition-key=&quot;7:6:7:30b1a708-effe-4bb3-a5db-a5d2beb51c02&quot; transition-magic=&quot;0:7;7:6:7:30b1a708-effe-4bb3-a5db-a5d2beb51c02&quot; on_node=&quot;a1&quot; call-id=&quot;28&quot; rc-code=&quot;7&quot; op-status=&quot;0&quot; interval=&quot;0&quot; la
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                                              &lt;/lrm_resource&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( callbacks.c:1079  )    info: cib_process_request: Completed cib_modify operation for section status: OK (rc=0, origin=a1/crmd/57, version=0.287.2)
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (       xml.c:2072  )   debug: xml_patch_version_check:     Can apply patch 0.287.2 to 0.287.1
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_callbacks:378   )   debug: te_update_diff:      Processing (cib_modify) diff: 0.287.1 -&gt; 0.287.2 (S_TRANSITION_ENGINE)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: ( te_events.c:387   )    info: match_graph_event:   Action webserver_monitor_0 (7) confirmed on a1 (rc=7)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:422   )  notice: te_rsc_command:      Initiating action 6: probe_complete probe_complete-a1 on a1 (local) - no waiting
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     utils.c:1837  )   debug: attrd_update_delegate:       Sent update: probe_complete=true for a1
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:460   )    info: te_rsc_command:      Action 6 confirmed - no wait
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     graph.c:343   )   debug: run_graph:   Transition 6 (Complete=3, Pending=1, Fired=1, Skipped=0, Incomplete=4, Source=/var/lib/pacemaker/pengine/pe-input-391.bz2): In-progress
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     graph.c:343   )   debug: run_graph:   Transition 6 (Complete=4, Pending=1, Fired=0, Skipped=0, Incomplete=4, Source=/var/lib/pacemaker/pengine/pe-input-391.bz2): In-progress
+May 30 16:52:19 [2446] a1.pm.redhat.com      attrd: (  commands.c:304   )   debug: attrd_client_update: Broadcasting probe_complete[a1] = true (writer)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (  cib_file.c:438   )   debug: cib_file_write_with_digest:  Wrote digest ce04d0c6102911744ac0d73e4d92fb56 to disk
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (  cib_file.c:442   )    info: cib_file_write_with_digest:  Reading cluster configuration file /var/lib/pacemaker/cib/cib.riFknC (digest: /var/lib/pacemaker/cib/cib.hRvoZe)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (  cib_file.c:447   )   debug: cib_file_write_with_digest:  Activating /var/lib/pacemaker/cib/cib.riFknC
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1660  )    info: cib_perform_op:      Diff: --- 0.287.2 2
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1662  )    info: cib_perform_op:      Diff: +++ 0.287.3 (null)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1728  )    info: cib_perform_op:      +  /cib:  &#64;num_updates=3
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1684  )    info: cib_perform_op:      ++ /cib/status/node_state[&#64;id='2']/lrm[&#64;id='2']/lrm_resources:  &lt;lrm_resource id=&quot;webserver&quot; type=&quot;apache&quot; class=&quot;ocf&quot; provider=&quot;heartbeat&quot;/&gt;
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                                                &lt;lrm_rsc_op id=&quot;webserver_last_0&quot; operation_key=&quot;webserver_monitor_0&quot; operation=&quot;monitor&quot; crm-debug-origin=&quot;do_update_resource&quot; crm_feature_set=&quot;3.0.10&quot; transition-key=&quot;9:6:7:30b1a708-effe-4bb3-a5db-a5d2beb51c02&quot; transition-magic=&quot;0:7;9:6:7:30b1a708-effe-4bb3-a5db-a5d2beb51c02&quot; on_node=&quot;a2&quot; call-id=&quot;24&quot; rc-code=&quot;7&quot; op-status=&quot;0&quot; interval=&quot;0&quot; la
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1691  )    info: cib_perform_op:      ++                                                              &lt;/lrm_resource&gt;
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_callbacks:378   )   debug: te_update_diff:      Processing (cib_modify) diff: 0.287.2 -&gt; 0.287.3 (S_TRANSITION_ENGINE)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: ( te_events.c:387   )    info: match_graph_event:   Action webserver_monitor_0 (9) confirmed on a2 (rc=7)
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (       xml.c:2072  )   debug: xml_patch_version_check:     Can apply patch 0.287.3 to 0.287.2
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:422   )  notice: te_rsc_command:      Initiating action 8: probe_complete probe_complete-a2 on a2 - no waiting
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:460   )    info: te_rsc_command:      Action 8 confirmed - no wait
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:55    )   debug: te_pseudo_action:    Pseudo action 5 fired and confirmed
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     graph.c:343   )   debug: run_graph:   Transition 6 (Complete=5, Pending=0, Fired=2, Skipped=0, Incomplete=2, Source=/var/lib/pacemaker/pengine/pe-input-391.bz2): In-progress
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:422   )  notice: te_rsc_command:      Initiating action 18: start webserver_start_0 on a1 (local)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       lrm.c:2005  )   debug: do_lrm_rsc_op:       Stopped 0 recurring operations in preparation for webserver_start_0
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       lrm.c:2009  )    info: do_lrm_rsc_op:       Performing key=18:6:0:30b1a708-effe-4bb3-a5db-a5d2beb51c02 op=webserver_start_0
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( callbacks.c:1079  )    info: cib_process_request: Completed cib_modify operation for section status: OK (rc=0, origin=a2/crmd/20, version=0.287.3)
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:1686  )   debug: process_lrmd_message:        Processed lrmd_rsc_exec operation from 4959caf7-a821-48aa-a8cd-d1aa2ed36b1b: rc=29, reply=1, notify=0, exit=4203648
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:131   )    info: log_execute: executing - rsc:webserver action:start call_id:29
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:689   )   trace: services_os_action_execute:  Async waiting for 3667 - /usr/lib/ocf/resource.d/heartbeat/apache
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     graph.c:343   )   debug: run_graph:   Transition 6 (Complete=7, Pending=1, Fired=1, Skipped=0, Incomplete=1, Source=/var/lib/pacemaker/pengine/pe-input-391.bz2): In-progress
+apache(webserver)[3667]:        2016/05/30_16:52:19 INFO: AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using a1.pm.redhat.com. Set the 'ServerName' directive globally to suppress this message
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:289   )   trace: operation_finished:  webserver_start_0:3667 0x18c3cf0 0x18c4d90
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:294   )   trace: operation_finished:  webserver_start_0:3667 dispatching stderr
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_start_0 stderr
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:296   )   trace: operation_finished:  webserver_start_0: (nil)
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:305   )   trace: operation_finished:  webserver_start_0:3667 dispatching stdout
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_start_0 stdout
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:307   )   trace: operation_finished:  webserver_start_0: (nil)
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:143   )   trace: pipe_out_done:       0x18c5460
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:327   )   debug: operation_finished:  webserver_start_0:3667 - exited with rc=0
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:332   )   debug: operation_finished:  webserver_start_0:3667:stderr [ -- empty -- ]
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:336   )   debug: operation_finished:  webserver_start_0:3667:stdout [ -- empty -- ]
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:113   )    info: log_finished:        finished - rsc:webserver action:start call_id:29 pid:3667 exit-code:0 exec-time:69ms queue-time:0ms
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     utils.c:1942  )   debug: create_operation_update:     do_update_resource: Updating resource webserver after start op complete (interval=0)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:491   )   trace: action_synced_wait:  Waiting for 3715
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:92    )   trace: svc_read_output:     Reading apache_meta-data_0 stdout
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 499 chars: &lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;!DOCTYPE resource-agent SYSTEM &quot;ra-api-1.dtd&quot;&gt;
+&lt;resource-
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 499 chars: out, the apache resource
+will end with an error status.
+
+The monitor operation b
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 499 chars: ache Web server instance&lt;/shortdesc&gt;
+
+&lt;parameters&gt;
+&lt;parameter name=&quot;configfile&quot; 
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 499 chars: nal).
+&lt;/longdesc&gt;
+&lt;shortdesc lang=&quot;en&quot;&gt;httpd binary path&lt;/shortdesc&gt;
+&lt;content ty
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 499 chars: atusurl&quot;&gt;
+&lt;longdesc lang=&quot;en&quot;&gt;
+The URL to monitor (the apache server status page
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 499 chars: &quot;&gt;
+Regular expression to match in the output of statusurl.
+Case insensitive.
+&lt;/l
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 499 chars: to &quot;curl&quot; if
+you prefer that to wget.
+&lt;/longdesc&gt;
+&lt;shortdesc lang=&quot;en&quot;&gt;http clie
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 499 chars: Case insensitive.
+&lt;/longdesc&gt;
+&lt;shortdesc lang=&quot;en&quot;&gt;extended monitor regular expr
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 499 chars: description.
+&lt;/longdesc&gt;
+&lt;shortdesc lang=&quot;en&quot;&gt;test configuration file&lt;/shortdesc
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 499 chars: ntent type=&quot;string&quot; /&gt;
+&lt;/parameter&gt;
+
+&lt;parameter name=&quot;envfiles&quot;&gt;
+&lt;longdesc lang=
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 499 chars: 
+that doesn't work set this to true to enforce IPv6.
+&lt;/longdesc&gt;
+&lt;shortdesc lang
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:98    )   trace: svc_read_output:     Got 6 chars: gent&gt;
+doesn't work set this to true to enforce IPv6.
+&lt;/longdesc&gt;
+&lt;shortdesc lang
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:540   )   trace: action_synced_wait:  Child done: 3715
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:567   )    info: action_synced_wait:  Managed apache_meta-data_0 process 3715 exited with rc=0
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:89    )   trace: svc_read_output:     Reading apache_meta-data_0 stdout into offset 5495
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (services_lin:92    )   trace: svc_read_output:     Reading apache_meta-data_0 stderr
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       lrm.c:2392  )  notice: process_lrm_event:   Operation webserver_start_0: ok (node=a1, call=29, rc=0, cib-update=58, confirmed=true)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       lrm.c:196   )   debug: update_history_cache:        Updating history for 'webserver' with start op
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( callbacks.c:1015  )    info: cib_process_request: Forwarding cib_modify operation for section status to master (origin=local/crmd/58)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1660  )    info: cib_perform_op:      Diff: --- 0.287.3 2
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1662  )    info: cib_perform_op:      Diff: +++ 0.287.4 (null)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1728  )    info: cib_perform_op:      +  /cib:  &#64;num_updates=4
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1728  )    info: cib_perform_op:      +  /cib/status/node_state[&#64;id='1']/lrm[&#64;id='1']/lrm_resources/lrm_resource[&#64;id='webserver']/lrm_rsc_op[&#64;id='webserver_last_0']:  &#64;operation_key=webserver_start_0, &#64;operation=start, &#64;transition-key=18:6:0:30b1a708-effe-4bb3-a5db-a5d2beb51c02, &#64;transition-magic=0:0;18:6:0:30b1a708-effe-4bb3-a5db-a5d2beb51c02, &#64;call-id=29, &#64;rc-code=0, &#64;exec-time=69
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( callbacks.c:1079  )    info: cib_process_request: Completed cib_modify operation for section status: OK (rc=0, origin=a1/crmd/58, version=0.287.4)
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (       xml.c:2072  )   debug: xml_patch_version_check:     Can apply patch 0.287.4 to 0.287.3
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_callbacks:378   )   debug: te_update_diff:      Processing (cib_modify) diff: 0.287.3 -&gt; 0.287.4 (S_TRANSITION_ENGINE)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: ( te_events.c:387   )    info: match_graph_event:   Action webserver_start_0 (18) confirmed on a1 (rc=0)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:422   )  notice: te_rsc_command:      Initiating action 19: monitor webserver_monitor_10000 on a1 (local)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       lrm.c:2009  )    info: do_lrm_rsc_op:       Performing key=19:6:0:30b1a708-effe-4bb3-a5db-a5d2beb51c02 op=webserver_monitor_10000
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:1686  )   debug: process_lrmd_message:        Processed lrmd_rsc_exec operation from 4959caf7-a821-48aa-a8cd-d1aa2ed36b1b: rc=30, reply=1, notify=0, exit=4203648
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:131   )   debug: log_execute: executing - rsc:webserver action:monitor call_id:30
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     graph.c:343   )   debug: run_graph:   Transition 6 (Complete=8, Pending=1, Fired=1, Skipped=0, Incomplete=0, Source=/var/lib/pacemaker/pengine/pe-input-391.bz2): In-progress
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:689   )   trace: services_os_action_execute:  Async waiting for 3727 - /usr/lib/ocf/resource.d/heartbeat/apache
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:289   )   trace: operation_finished:  webserver_monitor_10000:3727 0x18c3720 0x18c32c0
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:294   )   trace: operation_finished:  webserver_monitor_10000:3727 dispatching stderr
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_monitor_10000 stderr
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:296   )   trace: operation_finished:  webserver_monitor_10000: (nil)
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:305   )   trace: operation_finished:  webserver_monitor_10000:3727 dispatching stdout
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_monitor_10000 stdout
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:307   )   trace: operation_finished:  webserver_monitor_10000: (nil)
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:143   )   trace: pipe_out_done:       0x18c9c80
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:327   )   debug: operation_finished:  webserver_monitor_10000:3727 - exited with rc=0
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:332   )   debug: operation_finished:  webserver_monitor_10000:3727:stderr [ -- empty -- ]
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (services_lin:336   )   debug: operation_finished:  webserver_monitor_10000:3727:stdout [ -- empty -- ]
+May 30 16:52:19 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:113   )   debug: log_finished:        finished - rsc:webserver action:monitor call_id:30 pid:3727 exit-code:0 exec-time:32ms queue-time:0ms
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     utils.c:1942  )   debug: create_operation_update:     do_update_resource: Updating resource webserver after monitor op complete (interval=10000)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       lrm.c:2392  )    info: process_lrm_event:   Operation webserver_monitor_10000: ok (node=a1, call=30, rc=0, cib-update=59, confirmed=false)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       lrm.c:196   )   debug: update_history_cache:        Updating history for 'webserver' with monitor op
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( callbacks.c:1015  )    info: cib_process_request: Forwarding cib_modify operation for section status to master (origin=local/crmd/59)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1660  )    info: cib_perform_op:      Diff: --- 0.287.4 2
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1662  )    info: cib_perform_op:      Diff: +++ 0.287.5 (null)
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1728  )    info: cib_perform_op:      +  /cib:  &#64;num_updates=5
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: (       xml.c:1684  )    info: cib_perform_op:      ++ /cib/status/node_state[&#64;id='1']/lrm[&#64;id='1']/lrm_resources/lrm_resource[&#64;id='webserver']:  &lt;lrm_rsc_op id=&quot;webserver_monitor_10000&quot; operation_key=&quot;webserver_monitor_10000&quot; operation=&quot;monitor&quot; crm-debug-origin=&quot;do_update_resource&quot; crm_feature_set=&quot;3.0.10&quot; transition-key=&quot;19:6:0:30b1a708-effe-4bb3-a5db-a5d2beb51c02&quot; transition-magic=&quot;0:0;19:6:0:30b1a708-effe-4bb3-a5db-a5d2beb51c02&quot; on_node=&quot;a1&quot; call-id=&quot;30&quot; 
+May 30 16:52:19 [2443] a1.pm.redhat.com        cib: ( callbacks.c:1079  )    info: cib_process_request: Completed cib_modify operation for section status: OK (rc=0, origin=a1/crmd/59, version=0.287.5)
+May 30 16:52:19 [2444] a1.pm.redhat.com stonith-ng: (       xml.c:2072  )   debug: xml_patch_version_check:     Can apply patch 0.287.5 to 0.287.4
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_callbacks:378   )   debug: te_update_diff:      Processing (cib_modify) diff: 0.287.4 -&gt; 0.287.5 (S_TRANSITION_ENGINE)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: ( te_events.c:387   )    info: match_graph_event:   Action webserver_monitor_10000 (19) confirmed on a1 (rc=0)
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     graph.c:343   )  notice: run_graph:   Transition 6 (Complete=9, Pending=0, Fired=0, Skipped=0, Incomplete=0, Source=/var/lib/pacemaker/pengine/pe-input-391.bz2): Complete
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (  te_utils.c:401   )   debug: te_graph_trigger:    Transition 6 is now complete
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:682   )   debug: notify_crmd: Processing transition completion in state S_TRANSITION_ENGINE
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (te_actions.c:730   )   debug: notify_crmd: Transition 6 status: done - &lt;null&gt;
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       fsa.c:197   )   debug: s_crmd_fsa:  Processing I_TE_SUCCESS: [ state=S_TRANSITION_ENGINE cause=C_FSA_INTERNAL origin=notify_crmd ]
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (      misc.c:47    )    info: do_log:      FSA: Input I_TE_SUCCESS from notify_crmd() received in state S_TRANSITION_ENGINE
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       fsa.c:507   )  notice: do_state_transition: State transition S_TRANSITION_ENGINE -&gt; S_IDLE [ input=I_TE_SUCCESS cause=C_FSA_INTERNAL origin=notify_crmd ]
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (       fsa.c:650   )   debug: do_state_transition: Starting PEngine Recheck Timer
+May 30 16:52:19 [2451] a1.pm.redhat.com       crmd: (     utils.c:192   )   debug: crm_timer_start:     Started PEngine Recheck Timer (I_PE_CALC:900000ms), src=99
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (       ipc.c:334   )   debug: crm_client_new:      Connecting 0xceb130 for uid=0 gid=0 pid=3764 id=dd6b4372-a3e8-47ea-8512-a29c59ce1a6f
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: ( ipc_setup.c:506   )   debug: handle_new_connection:       IPC credentials authenticated (2443-3764-14)
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (   ipc_shm.c:294   )   debug: qb_ipcs_shm_connect: connecting to client [3764]
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (      ipcs.c:758   )   debug: qb_ipcs_dispatch_connection_request: HUP conn (2443-3764-14)
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (      ipcs.c:605   )   debug: qb_ipcs_disconnect:  qb_ipcs_disconnect(2443-3764-14) state:2
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (       ipc.c:368   )   debug: crm_client_destroy:  Destroying 0 events
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_ro-response-2443-3764-14-header
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_ro-event-2443-3764-14-header
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_ro-request-2443-3764-14-header
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (       ipc.c:334   )   debug: crm_client_new:      Connecting 0xceb130 for uid=0 gid=0 pid=3765 id=8f844cfe-0bf0-4092-afb1-350d57fa0c01
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: ( ipc_setup.c:506   )   debug: handle_new_connection:       IPC credentials authenticated (2443-3765-14)
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (   ipc_shm.c:294   )   debug: qb_ipcs_shm_connect: connecting to client [3765]
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:524301; real_size:528384; rb-&gt;word_size:132096
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (      ipcs.c:758   )   debug: qb_ipcs_dispatch_connection_request: HUP conn (2443-3765-14)
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (      ipcs.c:605   )   debug: qb_ipcs_disconnect:  qb_ipcs_disconnect(2443-3765-14) state:2
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (       ipc.c:368   )   debug: crm_client_destroy:  Destroying 0 events
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_rw-response-2443-3765-14-header
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_rw-event-2443-3765-14-header
+May 30 16:52:22 [2443] a1.pm.redhat.com        cib: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-cib_rw-request-2443-3765-14-header
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (       ipc.c:334   )   debug: crm_client_new:      Connecting 0xb73600 for uid=0 gid=0 pid=3766 id=c36d4255-582d-4672-91d7-d6a390d7d331
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: ( ipc_setup.c:506   )   debug: handle_new_connection:       IPC credentials authenticated (2302-3766-11)
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (   ipc_shm.c:294   )   debug: qb_ipcs_shm_connect: connecting to client [3766]
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:131085; real_size:135168; rb-&gt;word_size:33792
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:131085; real_size:135168; rb-&gt;word_size:33792
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:131085; real_size:135168; rb-&gt;word_size:33792
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (      ipcs.c:758   )   debug: qb_ipcs_dispatch_connection_request: HUP conn (2302-3766-11)
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (      ipcs.c:605   )   debug: qb_ipcs_disconnect:  qb_ipcs_disconnect(2302-3766-11) state:2
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (       ipc.c:368   )   debug: crm_client_destroy:  Destroying 0 events
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-pacemakerd-response-2302-3766-11-header
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-pacemakerd-event-2302-3766-11-header
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-pacemakerd-request-2302-3766-11-header
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (       ipc.c:334   )   debug: crm_client_new:      Connecting 0xb73600 for uid=0 gid=0 pid=3768 id=0ef2febe-266a-4183-a93e-d0ee03b022bb
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: ( ipc_setup.c:506   )   debug: handle_new_connection:       IPC credentials authenticated (2302-3768-11)
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (   ipc_shm.c:294   )   debug: qb_ipcs_shm_connect: connecting to client [3768]
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:131085; real_size:135168; rb-&gt;word_size:33792
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:131085; real_size:135168; rb-&gt;word_size:33792
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:236   )   debug: qb_rb_open_2:        shm size:131085; real_size:135168; rb-&gt;word_size:33792
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (      ipcs.c:758   )   debug: qb_ipcs_dispatch_connection_request: HUP conn (2302-3768-11)
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (      ipcs.c:605   )   debug: qb_ipcs_disconnect:  qb_ipcs_disconnect(2302-3768-11) state:2
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (       ipc.c:368   )   debug: crm_client_destroy:  Destroying 0 events
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-pacemakerd-response-2302-3768-11-header
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-pacemakerd-event-2302-3768-11-header
+May 30 16:52:22 [2302] a1.pm.redhat.com pacemakerd: (ringbuffer.c:299   )   debug: qb_rb_close: Free'ing ringbuffer: /dev/shm/qb-pacemakerd-request-2302-3768-11-header
+May 30 16:52:24 [2443] a1.pm.redhat.com        cib: ( cib_utils.c:285   )   debug: cib_acl_enabled:     CIB ACL is disabled
+May 30 16:52:24 [2443] a1.pm.redhat.com        cib: (  messages.c:239   )    info: cib_process_ping:    Reporting our current digest to a1: f8c9d5cbcb4c1e46e8de5828799ed3ac for 0.287.5 (0xa64b20 0)
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:226   )   debug: recurring_action_timer:      Scheduling another invocation of webserver_monitor_10000
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:689   )   trace: services_os_action_execute:  Async waiting for 3817 - /usr/lib/ocf/resource.d/heartbeat/apache
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:289   )   trace: operation_finished:  webserver_monitor_10000:3817 0x18c6bd0 0x18c32c0
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:294   )   trace: operation_finished:  webserver_monitor_10000:3817 dispatching stderr
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_monitor_10000 stderr
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:296   )   trace: operation_finished:  webserver_monitor_10000: (nil)
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:305   )   trace: operation_finished:  webserver_monitor_10000:3817 dispatching stdout
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_monitor_10000 stdout
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:307   )   trace: operation_finished:  webserver_monitor_10000: (nil)
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:143   )   trace: pipe_out_done:       0x18c9c80
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:327   )   debug: operation_finished:  webserver_monitor_10000:3817 - exited with rc=0
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:332   )   debug: operation_finished:  webserver_monitor_10000:3817:stderr [ -- empty -- ]
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (services_lin:336   )   debug: operation_finished:  webserver_monitor_10000:3817:stdout [ -- empty -- ]
+May 30 16:52:29 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:113   )   debug: log_finished:        finished - rsc:webserver action:monitor call_id:30 pid:3817 exit-code:0 exec-time:0ms queue-time:0ms
+May 30 16:52:30 [2451] a1.pm.redhat.com       crmd: (  throttle.c:276   )   debug: throttle_cib_load:   cib load: 0.001000 (3 ticks in 30s)
+May 30 16:52:30 [2451] a1.pm.redhat.com       crmd: (  throttle.c:318   )   debug: throttle_load_avg:   Current load is 0.000000 (full: 0.00 0.03 0.03 1/130 3851)
+May 30 16:52:30 [2451] a1.pm.redhat.com       crmd: (  throttle.c:398   )   debug: throttle_io_load:    Current IO load is 0.000000
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:226   )   debug: recurring_action_timer:      Scheduling another invocation of webserver_monitor_10000
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:689   )   trace: services_os_action_execute:  Async waiting for 3874 - /usr/lib/ocf/resource.d/heartbeat/apache
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:289   )   trace: operation_finished:  webserver_monitor_10000:3874 0x18c5d10 0x18c32c0
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:294   )   trace: operation_finished:  webserver_monitor_10000:3874 dispatching stderr
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_monitor_10000 stderr
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:296   )   trace: operation_finished:  webserver_monitor_10000: (nil)
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:305   )   trace: operation_finished:  webserver_monitor_10000:3874 dispatching stdout
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_monitor_10000 stdout
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:307   )   trace: operation_finished:  webserver_monitor_10000: (nil)
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:143   )   trace: pipe_out_done:       0x18c9c80
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:327   )   debug: operation_finished:  webserver_monitor_10000:3874 - exited with rc=0
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:332   )   debug: operation_finished:  webserver_monitor_10000:3874:stderr [ -- empty -- ]
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (services_lin:336   )   debug: operation_finished:  webserver_monitor_10000:3874:stdout [ -- empty -- ]
+May 30 16:52:39 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:113   )   debug: log_finished:        finished - rsc:webserver action:monitor call_id:30 pid:3874 exit-code:0 exec-time:0ms queue-time:0ms
+May 30 16:52:44 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:131   )   debug: log_execute: executing - rsc:node1-xvm action:monitor call_id:20
+May 30 16:52:44 [2444] a1.pm.redhat.com stonith-ng: (  commands.c:2450  )   debug: stonith_command:     Processing st_execute 9 from lrmd.2445 (               0)
+May 30 16:52:44 [2444] a1.pm.redhat.com stonith-ng: (  commands.c:402   )   debug: schedule_stonith_command:    Scheduling monitor on node1-xvm for 034c302a-3a77-4c38-91b2-aa416f92cc20 (timeout=20s)
+May 30 16:52:44 [2444] a1.pm.redhat.com stonith-ng: (  commands.c:2464  )   debug: stonith_command:     Processed st_execute from lrmd.2445: Operation now in progress (-115)
+May 30 16:52:44 [2444] a1.pm.redhat.com stonith-ng: ( st_client.c:585   )   debug: stonith_action_create:       Initiating action monitor for agent fence_xvm (target=(null))
+May 30 16:52:44 [2444] a1.pm.redhat.com stonith-ng: ( st_client.c:750   )   debug: internal_stonith_action_execute:     forking
+May 30 16:52:44 [2444] a1.pm.redhat.com stonith-ng: ( st_client.c:796   )   debug: internal_stonith_action_execute:     sending args
+May 30 16:52:44 [2444] a1.pm.redhat.com stonith-ng: (  commands.c:342   )   debug: stonith_device_execute:      Operation monitor on node1-xvm now running with pid=3914, timeout=20s
+May 30 16:52:49 [2445] a1.pm.redhat.com       lrmd: (services_lin:226   )   debug: recurring_action_timer:      Scheduling another invocation of webserver_monitor_10000
+May 30 16:52:49 [2445] a1.pm.redhat.com       lrmd: (services_lin:689   )   trace: services_os_action_execute:  Async waiting for 3915 - /usr/lib/ocf/resource.d/heartbeat/apache
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (services_lin:289   )   trace: operation_finished:  webserver_monitor_10000:3915 0x18c32c0 0x18c5190
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (services_lin:294   )   trace: operation_finished:  webserver_monitor_10000:3915 dispatching stderr
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_monitor_10000 stderr
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (services_lin:296   )   trace: operation_finished:  webserver_monitor_10000: (nil)
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (services_lin:305   )   trace: operation_finished:  webserver_monitor_10000:3915 dispatching stdout
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (services_lin:92    )   trace: svc_read_output:     Reading webserver_monitor_10000 stdout
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (services_lin:307   )   trace: operation_finished:  webserver_monitor_10000: (nil)
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (services_lin:143   )   trace: pipe_out_done:       0x18c9c80
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (services_lin:327   )   debug: operation_finished:  webserver_monitor_10000:3915 - exited with rc=0
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (services_lin:332   )   debug: operation_finished:  webserver_monitor_10000:3915:stderr [ -- empty -- ]
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (services_lin:336   )   debug: operation_finished:  webserver_monitor_10000:3915:stdout [ -- empty -- ]
+May 30 16:52:50 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:113   )   debug: log_finished:        finished - rsc:webserver action:monitor call_id:30 pid:3915 exit-code:0 exec-time:0ms queue-time:0ms
+May 30 16:52:54 [2444] a1.pm.redhat.com stonith-ng: ( st_client.c:689   )   debug: stonith_action_async_done:   Child process 3914 performing action 'monitor' exited with rc 0
+May 30 16:52:54 [2444] a1.pm.redhat.com stonith-ng: (  commands.c:1826  )   debug: st_child_done:       Operation 'monitor' on 'node1-xvm' completed with rc=0 (0 remaining)
+May 30 16:52:54 [2444] a1.pm.redhat.com stonith-ng: (  commands.c:1690  )   debug: log_operation:       Operation 'monitor' [3914] for device 'node1-xvm' returned: 0 (OK)
+May 30 16:52:54 [2445] a1.pm.redhat.com       lrmd: (      lrmd.c:113   )   debug: log_finished:        finished - rsc:node1-xvm action:monitor call_id:20  exit-code:0 exec-time:10020ms queue-time:0ms
+
+</pre>
+<p>Pickup a log as an entry point,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">May</span> <span class="mi">30</span> <span class="mi">16</span><span class="p">:</span><span class="mi">52</span><span class="p">:</span><span class="mi">19</span> <span class="p">[</span><span class="mi">2451</span><span class="p">]</span> <span class="n">a1</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">redhat</span><span class="o">.</span><span class="n">com</span>       <span class="n">crmd</span><span class="p">:</span> <span class="p">(</span><span class="n">te_actions</span><span class="o">.</span><span class="n">c</span><span class="p">:</span><span class="mi">422</span>   <span class="p">)</span>  <span class="n">notice</span><span class="p">:</span> <span class="n">te_rsc_command</span><span class="p">:</span>   <span class="n">Initiating</span> <span class="n">action</span> <span class="mi">11</span><span class="p">:</span> <span class="n">monitor</span> <span class="n">webserver_monitor_0</span> <span class="n">on</span> <span class="n">a3</span>
+</pre></div>
+</div>
+<p>The above log comes from</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">crmd</span><span class="o">/</span><span class="n">te_actions</span><span class="o">.</span><span class="n">c</span><span class="p">:</span><span class="mi">420</span><span class="p">:</span>    <span class="n">crm_notice</span><span class="p">(</span><span class="s2">&quot;Initiating action </span><span class="si">%d</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> on </span><span class="si">%s%s%s</span><span class="s2">&quot;</span><span class="p">,</span>
+
+                  <span class="mi">424</span><span class="p">:</span>    <span class="n">cmd</span> <span class="o">=</span> <span class="n">create_request</span><span class="p">(</span><span class="n">CRM_OP_INVOKE_LRM</span><span class="p">,</span> <span class="n">rsc_op</span><span class="p">,</span> <span class="n">router_node</span><span class="p">,</span>                   <span class="o">|</span>
+                  <span class="mi">425</span><span class="p">:</span>                         <span class="n">CRM_SYSTEM_LRMD</span><span class="p">,</span> <span class="n">CRM_SYSTEM_TENGINE</span><span class="p">,</span> <span class="n">NULL</span><span class="p">);</span>
+
+                  <span class="mi">444</span><span class="p">:</span>        <span class="n">do_lrm_invoke</span><span class="p">(</span><span class="n">A_LRM_INVOKE</span><span class="p">,</span> <span class="n">C_FSA_INTERNAL</span><span class="p">,</span> <span class="n">fsa_state</span><span class="p">,</span> <span class="n">I_NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">msg</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pacemaker-inside.html"
+                        title="previous chapter">14. Pacemaker inside</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="codewalk-monitoringResource.html"
+                        title="next chapter">16. Code-walk / Monitoring resources</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/codewalk-addResource.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="codewalk-monitoringResource.html" title="16. Code-walk / Monitoring resources"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pacemaker-inside.html" title="14. Pacemaker inside"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">PacemakerDoc 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016 Red Hat, Inc..
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>
