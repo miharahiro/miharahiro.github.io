@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Openstack tripleO quickstart setup memo &mdash; OSP-memo 1 documentation</title>
+  <title>Network の作成 &mdash; OSP-memo 1 documentation</title>
   
 
   
@@ -30,8 +30,7 @@
   
 
   
-    <link rel="top" title="OSP-memo 1 documentation" href="#"/>
-        <link rel="next" title="TripleO (Openstack-On-Openstack)" href="tripleO.html"/> 
+    <link rel="top" title="OSP-memo 1 documentation" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -49,7 +48,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> OSP-memo
+            <a href="index.html" class="icon icon-home"> OSP-memo
           
 
           
@@ -96,7 +95,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="#">OSP-memo</a>
+        <a href="index.html">OSP-memo</a>
       </nav>
 
 
@@ -111,13 +110,13 @@
 
 <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="#">Docs</a> &raquo;</li>
+    <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Openstack tripleO quickstart setup memo</li>
+    <li>Network の作成</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/create-network.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -127,52 +126,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="openstack-tripleo-quickstart-setup-memo">
-<h1>Openstack tripleO quickstart setup memo<a class="headerlink" href="#openstack-tripleo-quickstart-setup-memo" title="Permalink to this headline">¶</a></h1>
-<p>Contents:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tripleO.html">TripleO (Openstack-On-Openstack)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tripleO.html#links">Links</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tripleO.html#id1">実施環境</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tripleO.html#setup-using-tripleo-quickstart">Setup using tripleo-quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tripleO.html#accessing-undercloud-overcloud">Accessing undercloud/overcloud</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tripleO.html#quickstart">quickstart実施後の確認</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tripleO.html#overcloud">Overcloud が作成されたことの確認</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tripleO.html#test">testの実施</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tripleO.html#accessing-horizon-in-overcloud-ssh-port-forwarding">Accessing Horizon in overcloud / SSH Port Forwarding</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tripleO.html#id2">状態の観察</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tripleO.html#id3">構築した環境の削除</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tripleO-ha.html">TripleO quickstartを用いてHA (overcloud)を作成する</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tripleO-ha.html#openstack-tripleo-quickstart-clone">openstack/tripleo-quickstart をclone</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tripleO-ha.html#playbook">構成に応じたplaybook用コンフィグを作成</a></li>
-</ul>
-</li>
-</ul>
+  <div class="section" id="network">
+<h1>Network の作成<a class="headerlink" href="#network" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2>外部ネットワークの作成<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ . overcloudrc
+[stack@undercloud ~]$ neutron net-create ext-net --shared --router:external=True
+</pre></div>
 </div>
 </div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
 </div>
 
 
            </div>
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="tripleO.html" class="btn btn-neutral float-right" title="TripleO (Openstack-On-Openstack)" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-    </div>
   
 
   <hr/>

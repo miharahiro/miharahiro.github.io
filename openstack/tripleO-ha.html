@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="tripleO.html">TripleO (Openstack-On-Openstack)</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">TripleO quickstartを用いてHA (overcloud)を作成する</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#openstack-tripleo-quickstart-clone">openstack/tripleo-quickstart をclone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#playbook">構成に応じたplaybook用コンフィグを作成</a></li>
 </ul>
 </li>
 </ul>
@@ -136,27 +137,128 @@
 <div class="section" id="openstack-tripleo-quickstart-clone">
 <h2>openstack/tripleo-quickstart をclone<a class="headerlink" href="#openstack-tripleo-quickstart-clone" title="Permalink to this headline">¶</a></h2>
 <p>まずは、quickstartプロジェクトをローカルにクローン(root)</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># git clone git@github.com:openstack/tripleo-quickstart.git</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># git clone https://github.com/openstack/tripleo-quickstart.git</span>
 </pre></div>
 </div>
-<p>お目当てのplaybook for HA (3 controller, 1 compute)は config/general-config/ha.ymlにある。</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># ./quickstart.sh -n -t all -c ./config/general_config/ha.yml 10.64.201.132</span>
+</div>
+<div class="section" id="playbook">
+<h2>構成に応じたplaybook用コンフィグを作成<a class="headerlink" href="#playbook" title="Permalink to this headline">¶</a></h2>
+<p>playbook for HA (3 controller, 1 compute)が config/general-config/ha.ymlにある。これをベースに、下記の構成を実現するha-ceph.ymlを作成する。</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Controller</span> <span class="n">x</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Compute</span> <span class="n">x</span> <span class="mi">3</span><span class="p">,</span> <span class="n">Ceph</span> <span class="n">x</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p>作成したha-ceph.yml</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Deploy an HA openstack environment.</span>
+<span class="c1">#</span>
+<span class="c1"># This will require (6144 * 4) == approx. 24GB for the overcloud</span>
+<span class="c1"># nodes, plus another 8GB for the undercloud, for a total of around</span>
+<span class="c1"># 32GB.</span>
+<span class="n">control_memory</span><span class="p">:</span> <span class="mi">6144</span>
+<span class="n">compute_memory</span><span class="p">:</span> <span class="mi">6144</span>
+
+<span class="n">undercloud_memory</span><span class="p">:</span> <span class="mi">8192</span>
+
+<span class="c1"># Giving the undercloud additional CPUs can greatly improve heat&#39;s</span>
+<span class="c1"># performance (and result in a shorter deploy time).</span>
+<span class="n">undercloud_vcpu</span><span class="p">:</span> <span class="mi">6</span>
+
+<span class="c1"># Create three controller nodes, three compute nodes and three ceph nodes.</span>
+<span class="n">overcloud_nodes</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">control_0</span>
+    <span class="n">flavor</span><span class="p">:</span> <span class="n">control</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">control_1</span>
+    <span class="n">flavor</span><span class="p">:</span> <span class="n">control</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">control_2</span>
+    <span class="n">flavor</span><span class="p">:</span> <span class="n">control</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">compute_0</span>
+    <span class="n">flavor</span><span class="p">:</span> <span class="n">compute</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">compute_1</span>
+    <span class="n">flavor</span><span class="p">:</span> <span class="n">compute</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">compute_2</span>
+    <span class="n">flavor</span><span class="p">:</span> <span class="n">compute</span>
+
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">ceph_0</span>
+    <span class="n">flavor</span><span class="p">:</span> <span class="n">ceph</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">ceph_1</span>
+    <span class="n">flavor</span><span class="p">:</span> <span class="n">ceph</span>
+  <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">ceph_2</span>
+    <span class="n">flavor</span><span class="p">:</span> <span class="n">ceph</span>
+
+<span class="c1"># We don&#39;t need introspection in a virtual environment (because we are</span>
+<span class="c1"># creating all the &quot;hardware&quot; we really know the necessary</span>
+<span class="c1"># information).</span>
+<span class="n">introspect</span><span class="p">:</span> <span class="n">false</span>
+
+<span class="c1"># Tell tripleo about our environment.</span>
+<span class="n">network_isolation</span><span class="p">:</span> <span class="n">true</span>
+<span class="n">extra_args</span><span class="p">:</span> <span class="o">&gt;-</span>
+  <span class="o">--</span><span class="n">control</span><span class="o">-</span><span class="n">scale</span> <span class="mi">3</span> <span class="o">--</span><span class="n">compute</span><span class="o">-</span><span class="n">scale</span> <span class="mi">3</span> <span class="o">--</span><span class="n">ceph</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">scale</span> <span class="mi">3</span> <span class="o">--</span><span class="n">neutron</span><span class="o">-</span><span class="n">network</span><span class="o">-</span><span class="nb">type</span> <span class="n">vxlan</span>
+  <span class="o">--</span><span class="n">neutron</span><span class="o">-</span><span class="n">tunnel</span><span class="o">-</span><span class="n">types</span> <span class="n">vxlan</span>
+  <span class="o">--</span><span class="n">ntp</span><span class="o">-</span><span class="n">server</span> <span class="n">pool</span><span class="o">.</span><span class="n">ntp</span><span class="o">.</span><span class="n">org</span>
+<span class="n">test_tempest</span><span class="p">:</span> <span class="n">false</span>
+<span class="n">test_ping</span><span class="p">:</span> <span class="n">true</span>
+<span class="n">enable_pacemaker</span><span class="p">:</span> <span class="n">true</span>
+</pre></div>
+</div>
+<p>quickstart.sh tagオプションは指定せずに実行する。これにより、undercloudのみ作成される。構成を変更するので、overcloudの作成は後程手動で実施する。</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># ./quickstart.sh -c ./config/general_config/ha-ceph.yml 10.64.201.132</span>
 </pre></div>
 </div>
 <p>もし既存の構築環境がある場合、既存の削除と新規の作成を以下で行う。</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># ./quickstart.sh -T all -n -t all -c ./config/general_config/ha.yml 10.64.201.132</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># ./quickstart.sh -T all -c ./config/general_config/ha-ceph.yml 10.64.201.132</span>
 </pre></div>
 </div>
-<p>以下のように、controllerノードが3つ作成される。</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ nova list
-+--------------------------------------+-------------------------+--------+------------+-------------+---------------------+
-| ID                                   | Name                    | Status | Task State | Power State | Networks            |
-+--------------------------------------+-------------------------+--------+------------+-------------+---------------------+
-| 90d10f7e-2f67-401d-ab47-53fb92ba9db4 | overcloud-controller-0  | ACTIVE | -          | Running     | ctlplane=192.0.2.9  |
-| 0b33315d-610b-43b9-8df2-af8a4e2ce142 | overcloud-controller-1  | ACTIVE | -          | Running     | ctlplane=192.0.2.8  |
-| ede6250c-05ab-4366-864b-35cdbe7e7c4d | overcloud-controller-2  | ACTIVE | -          | Running     | ctlplane=192.0.2.10 |
-| 7045415a-7007-47f0-a038-2a246d7b141f | overcloud-novacompute-0 | ACTIVE | -          | Running     | ctlplane=192.0.2.7  |
-+--------------------------------------+-------------------------+--------+------------+-------------+---------------------+
+<p>作成が完了したら、undercloudにアクセスする。</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># ssh -F /root/.quickstart/ssh.config.ansible undercloud</span>
+</pre></div>
+</div>
+<p>baremetal listで確認</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ . stackrc
+[stack@undercloud ~]$ openstack baremetal list
++------------+-----------+---------------+-------------+--------------------+-------------+
+| UUID       | Name      | Instance UUID | Power State | Provisioning State | Maintenance |
++------------+-----------+---------------+-------------+--------------------+-------------+
+| e56d3b51-0 | control-0 | None          | power off   | available          | False       |
+| 3e2-46af-b |           |               |             |                    |             |
+| 4c8-041683 |           |               |             |                    |             |
+| f1ade4     |           |               |             |                    |             |
+| d515f745-0 | control-1 | None          | power off   | available          | False       |
+| a15-43b8   |           |               |             |                    |             |
+| -916b-b555 |           |               |             |                    |             |
+| bd496001   |           |               |             |                    |             |
+| 0bfbe0a1   | control-2 | None          | power off   | available          | False       |
+| -5b4e-     |           |               |             |                    |             |
+| 4ced-bd4f- |           |               |             |                    |             |
+| d2a3180690 |           |               |             |                    |             |
+| b5         |           |               |             |                    |             |
+| e8b8239d-7 | compute-0 | None          | power off   | available          | False       |
+| 055-4b86   |           |               |             |                    |             |
+| -ba2c-6d28 |           |               |             |                    |             |
+| 1b5009a2   |           |               |             |                    |             |
+| e8c05c4e-  | compute-1 | None          | power off   | available          | False       |
+| c21d-45dc- |           |               |             |                    |             |
+| b01d-a8cd3 |           |               |             |                    |             |
+| 1b31f72    |           |               |             |                    |             |
+| 3d589f01   | compute-2 | None          | power off   | available          | False       |
+| -17ae-     |           |               |             |                    |             |
+| 431f-a86a- |           |               |             |                    |             |
+| afaa8cb311 |           |               |             |                    |             |
+| 15         |           |               |             |                    |             |
+| 0bc33172   | ceph-0    | None          | power off   | available          | False       |
+| -385f-     |           |               |             |                    |             |
+| 4fcf-9cf5- |           |               |             |                    |             |
+| 8c42b02139 |           |               |             |                    |             |
+| e0         |           |               |             |                    |             |
+| e2d224db-  | ceph-1    | None          | power off   | available          | False       |
+| 105d-4be8  |           |               |             |                    |             |
+| -9a7e-252a |           |               |             |                    |             |
+| f55a900b   |           |               |             |                    |             |
+| 53626b20   | ceph-2    | None          | power off   | available          | False       |
+| -13aa-4fe1 |           |               |             |                    |             |
+| -80e8-7f97 |           |               |             |                    |             |
+| 88a6efb5   |           |               |             |                    |             |
++------------+-----------+---------------+-------------+--------------------+-------------+
 </pre></div>
 </div>
 </div>

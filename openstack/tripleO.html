@@ -88,13 +88,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#setup-using-tripleo-quickstart">Setup using tripleo-quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#accessing-undercloud-overcloud">Accessing undercloud/overcloud</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#quickstart">quickstart実施後の確認</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#undercloud-post-install-sh">undercloud-post-install.sh の実行</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#overcloud">Overcloudの作成</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">overcloud 作成後の確認</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overcloud">Overcloud が作成されたことの確認</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test">testの実施</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#accessing-horizon-in-overcloud-ssh-port-forwarding">Accessing Horizon in overcloud / SSH Port Forwarding</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">状態の観察</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">構築した環境の削除</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">状態の観察</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">構築した環境の削除</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tripleO-ha.html">TripleO quickstartを用いてHA (overcloud)を作成する</a></li>
@@ -453,50 +451,8 @@ PubkeyAuthentication yes
 </pre></div>
 </div>
 </div>
-<div class="section" id="undercloud-post-install-sh">
-<h2>undercloud-post-install.sh の実行<a class="headerlink" href="#undercloud-post-install-sh" title="Permalink to this headline">¶</a></h2>
-<p>flavorの作成、vlanの設定などが実施される。</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ source stackrc; ./undercloud-post-install.sh
-</pre></div>
-</div>
-</div>
 <div class="section" id="overcloud">
-<h2>Overcloudの作成<a class="headerlink" href="#overcloud" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>[UNDERCLOUD]overcloudの作成。[LOCAL] から[VIRTHOST]上のundercloudノード[UNDERCLOUD]にログイン後、下記スクリプトの実行でovercloudにノードが作成される。</li>
-<li>overcloud-deploy.shを実行</li>
-</ul>
-<div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ ~/overcloud-deploy.sh
-</pre></div>
-</div>
-<ul class="simple">
-<li>[UNDERCLOUD]作成されたstackとノードを確認</li>
-</ul>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ heat stack-list
-+--------------------------------------+------------+-----------------+---------------------+--------------+
-| id                                   | stack_name | stack_status    | creation_time       | updated_time |
-+--------------------------------------+------------+-----------------+---------------------+--------------+
-| 51987e1a-f97f-4abb-a1cb-20bd36f0fdfe | overcloud  | CREATE_COMPLETE | 2016-07-05T01:46:10 | None         |
-+--------------------------------------+------------+-----------------+---------------------+--------------+
-
-$ nova list
-+--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
-| ID                                   | Name                    | Status | Task State | Power State | Networks           |
-+--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
-| 97c6ebe5-3ada-48b6-925d-6bbface660c2 | overcloud-controller-0  | ACTIVE | -          | Running     | ctlplane=192.0.2.8 |
-| daffaf64-19d3-4ebe-aebf-3c993d51a6b7 | overcloud-novacompute-0 | ACTIVE | -          | Running     | ctlplane=192.0.2.7 |
-+--------------------------------------+-------------------------+--------+------------+-------------+--------------------+
-</pre></div>
-</div>
-<ul class="simple">
-<li>[UNDERCLOUD]overcloud-deployの後の処理。hostsファイルのアップデートとheat_stack_ownerの作成。</li>
-</ul>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ ~/overcloud-deploy-post.sh
-</pre></div>
-</div>
-</div>
-<div class="section" id="id2">
-<h2>overcloud 作成後の確認<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<h2>Overcloud が作成されたことの確認<a class="headerlink" href="#overcloud" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ source stackrc
 [stack@undercloud ~]$ heat stack-list
 +--------------------------------------+------------+-----------------+---------------------+---------------------+
@@ -572,8 +528,8 @@ controllerにログイン
 <p>port forwardingの設定後、<a class="reference external" href="http://localhost:8080">http://localhost:8080</a> で、overcloudのHorizonにアクセスできる。
 admin / password (パスワードは、tripleo-overcloud-passwordsのOVERCLOUD_ADMIN_PASSWORD=Uwk2gwxrNVQv4tUXWrJB4ngwv)</p>
 </div>
-<div class="section" id="id3">
-<h2>状態の観察<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h2>状態の観察<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default"><div class="highlight"><pre><span></span>[stack@undercloud ~]$ ip addr
 1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN
 link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -771,8 +727,8 @@ valid_lft forever preferred_lft forever
 </pre></div>
 </div>
 </div>
-<div class="section" id="id4">
-<h2>構築した環境の削除<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h2>構築した環境の削除<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <p>新規にquickstartを用いて環境作成するには、既存の構築環境がある場合、下記手順で削除を行う。</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># ./quickstart.sh -T all [VIRTHOST]</span>
 </pre></div>
